@@ -98,13 +98,13 @@ public abstract class AbstractNeoQueryLogic
 		{
 			if ( objectExpression instanceof ASTLiteral )
 			{
-				subjectNode.setPropertyEqualConstraint(
+				subjectNode.addPropertyEqualConstraint(
 					( String ) property.getMappedValue(),
 					( ( ASTLiteral ) objectExpression ).getLabel() );
 			}
 			else if ( objectExpression instanceof ASTVar )
 			{
-				subjectNode.setPropertyExistConstraint(
+				subjectNode.addPropertyExistConstraint(
 					( String  ) property.getMappedValue() );
 				this.variableList.add( new NeoVariable(
 					( ASTVar ) objectExpression,

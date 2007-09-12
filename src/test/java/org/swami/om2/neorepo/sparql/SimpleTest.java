@@ -154,7 +154,6 @@ public class SimpleTest extends SparqlTestCase
 //						}
 //					}
 //				}
-				this.printNeoBindingSet( result );
 			}
 			else
 			{
