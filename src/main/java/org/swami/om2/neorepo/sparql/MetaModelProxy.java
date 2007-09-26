@@ -29,4 +29,7 @@ public interface MetaModelProxy
 	public int getCount( String uri );
 	
 	public Node getClassNode( String uri );
+	
+	public Object convertCriteriaStringValueToRealValue( String propertyKey,
+		String value );
 }

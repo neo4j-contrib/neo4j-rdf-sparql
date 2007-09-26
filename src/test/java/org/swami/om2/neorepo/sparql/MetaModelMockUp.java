@@ -56,6 +56,12 @@ public class MetaModelMockUp implements MetaModelProxy
 		return this.referenceNodes.get( uri );
 	}
 	
+	public Object convertCriteriaStringValueToRealValue( String propertyKey,
+		String value )
+	{
+		return value;
+	}
+	
 	// Help method for the unit tests.
 	void addClassNode( String uri, Node node )
 	{
