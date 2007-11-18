@@ -40,7 +40,7 @@ public abstract class SparqlTestCase extends TestCase
 	public void setUp(
 		Class<? extends RelationshipType> relationshipTypeClass )
 	{
-		neo = new EmbeddedNeo( relationshipTypeClass, "var-unit-tests", true );
+		neo = new EmbeddedNeo( relationshipTypeClass, "var-unit-tests" );
 	}
 	
 	@Override
