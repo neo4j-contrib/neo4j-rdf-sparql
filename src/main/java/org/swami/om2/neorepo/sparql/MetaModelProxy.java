@@ -32,4 +32,6 @@ public interface MetaModelProxy
 	
 	public Object convertCriteriaStringValueToRealValue( String propertyKey,
 		String value );
+	
+	public String getObjectType( String subjectUri, String predicateUri );
 }

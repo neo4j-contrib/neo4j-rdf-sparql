@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import name.levering.ryan.sparql.common.QueryException;
 import name.levering.ryan.sparql.model.TripleConstraint;
 import name.levering.ryan.sparql.model.logic.ExpressionLogic;
@@ -13,6 +14,7 @@ import name.levering.ryan.sparql.parser.model.ASTLiteral;
 import name.levering.ryan.sparql.parser.model.ASTQName;
 import name.levering.ryan.sparql.parser.model.ASTVar;
 import name.levering.ryan.sparql.parser.model.URINode;
+
 import org.neo4j.api.core.RelationshipType;
 import org.neo4j.util.matching.PatternNode;
 import org.neo4j.util.matching.PatternRelationship;
@@ -21,6 +23,7 @@ import org.swami.om2.neorepo.sparql.MetaModelProxy.OwlPropertyType;
 public abstract class AbstractNeoQueryLogic
 {
 	private Map<ExpressionLogic, PatternNode> graph;
+	private Map<String, PatternNode> nodeTypes;
 	private Set<PatternNode> possibleStartNodes;
 	private List<NeoVariable> variableList;
 	private Map<ExpressionLogic, String> classMapping;
@@ -29,6 +32,7 @@ public abstract class AbstractNeoQueryLogic
 	AbstractNeoQueryLogic( MetaModelProxy metaModel )
 	{
 		this.graph = new HashMap<ExpressionLogic, PatternNode>();
+		this.nodeTypes = new HashMap<String, PatternNode>();
 		this.possibleStartNodes = new HashSet<PatternNode>();
 		this.variableList = new LinkedList<NeoVariable>();
 		this.classMapping = new HashMap<ExpressionLogic, String>();
@@ -64,11 +68,13 @@ public abstract class AbstractNeoQueryLogic
 		this.assertConstraint( constraint );
 		PatternNode subjectNode = this.getOrCreatePatternNode(
 			constraint.getSubjectExpression() );
-		subjectNode.createRelationshipTo(
-			this.getOrCreatePatternNode( constraint.getObjectExpression() ),
+		PatternNode objectNode = this.getOrCreatePatternNode(
+			constraint.getObjectExpression() );
+		subjectNode.createRelationshipTo( objectNode,
 			this.metaModel.getTypeRelationship() );
-		this.classMapping.put( constraint.getSubjectExpression(),
-			this.toUri( constraint.getObjectExpression() ) );
+		String objectUri = this.toUri( constraint.getObjectExpression() );
+		this.classMapping.put( constraint.getSubjectExpression(), objectUri );
+		this.nodeTypes.put( objectUri, objectNode );
 	}
 	
 	protected void addToPattern( TripleConstraint constraint )
@@ -171,6 +177,18 @@ public abstract class AbstractNeoQueryLogic
 		}
 		return node;
 	}
+	
+	private PatternNode getOrCreatePatternNode( String nodeType )
+	{
+		PatternNode node = this.nodeTypes.get( nodeType );
+		if ( node == null )
+		{
+			node = new PatternNode( nodeType );
+			this.nodeTypes.put( nodeType, node );
+			this.possibleStartNodes.add( node );
+		}
+		return node;
+	}
 
 	protected void assertGraph()
 	{
@@ -183,23 +201,69 @@ public abstract class AbstractNeoQueryLogic
 		}
 	}
 	
-	private void assertHasTypeRelationship( PatternNode node )
+	private PatternRelationship findTypeRelationshipOrNull( PatternNode node )
 	{
-		boolean found = false;
 		for ( PatternRelationship relationship : node.getRelationships() )
 		{
-			if ( relationship.getType() ==
-				this.metaModel.getTypeRelationship() )
+			if ( relationship.getType().equals(
+				this.metaModel.getTypeRelationship() ) )
 			{
-				found = true;
-				break;
+				return relationship;
 			}
+		}
+		return null;
+	}
+	
+	private void assertHasTypeRelationship( PatternNode node )
+	{
+		boolean found = findTypeRelationshipOrNull( node ) != null;
+		if ( !found )
+		{
+			found = tryToFindAndAddType( node );
 		}
 		if ( !found )
 		{
 			throw new QueryException( "Type for variable [" + node.getLabel() +
 				"] is not specified. Not supported." );
 		}
+	}
+	
+	private boolean tryToFindAndAddType( PatternNode nodeWithMissingType )
+	{
+		// Try to get the type from proxy...
+		// allright take the first relationship for this node,
+		// go to that other node and get its type relationship to
+		// use you know!
+		PatternRelationship firstRelationshipHack = null;
+		for ( PatternRelationship rel : nodeWithMissingType.getRelationships() )
+		{
+			firstRelationshipHack = rel;
+			break;
+		}
+		
+		if ( firstRelationshipHack != null )
+		{
+			PatternNode otherNode =
+				firstRelationshipHack.getOtherNode( nodeWithMissingType );
+			PatternRelationship otherNodesTypeRel =
+				findTypeRelationshipOrNull( otherNode );
+			if ( otherNodesTypeRel != null )
+			{
+				PatternNode otherTypeNode = otherNodesTypeRel.getOtherNode(
+					otherNode );
+				String type = this.metaModel.getObjectType(
+					otherTypeNode.getLabel(),
+					firstRelationshipHack.getType().name() );
+				if ( type != null )
+				{
+					PatternNode typeNode = getOrCreatePatternNode( type );
+					nodeWithMissingType.createRelationshipTo( typeNode,
+						this.metaModel.getTypeRelationship() );
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private void assertConstraint( TripleConstraint constraint )

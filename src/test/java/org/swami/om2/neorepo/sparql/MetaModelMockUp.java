@@ -62,6 +62,12 @@ public class MetaModelMockUp implements MetaModelProxy
 		return value;
 	}
 	
+	public String getObjectType( String subjectUri, String predicateUri )
+	{
+		// TODO?
+		return null;
+	}
+	
 	// Help method for the unit tests.
 	void addClassNode( String uri, Node node )
 	{
