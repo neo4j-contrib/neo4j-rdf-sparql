@@ -32,7 +32,7 @@ public class NeoBindingRow implements RdfBindingRow
 		{
 			if ( element.getPatternNode().equals( neoVariable.getNode() ) )
 			{
-				return new NeoValue( ( String )
+				return new NeoValue(
 					element.getNode().getProperty(
 						neoVariable.getProperty() ) );
 			}
@@ -51,7 +51,7 @@ public class NeoBindingRow implements RdfBindingRow
 			{
 				if ( variable.getNode().equals( element.getPatternNode() ) )
 				{
-					values.add( new NeoValue( ( String )
+					values.add( new NeoValue(
 						element.getNode().getProperty(
 							variable.getProperty() ) ) );
 					break;
@@ -69,9 +69,9 @@ public class NeoBindingRow implements RdfBindingRow
 	
 	static class NeoValue implements Value
 	{
-		String value;
+		Object value;
 		
-		NeoValue( String value )
+		NeoValue( Object value )
 		{
 			this.value = value;
 		}
@@ -79,7 +79,7 @@ public class NeoBindingRow implements RdfBindingRow
 		@Override
 		public String toString()
 		{
-			return value;
+			return value.toString();
 		}
 	}
 }
