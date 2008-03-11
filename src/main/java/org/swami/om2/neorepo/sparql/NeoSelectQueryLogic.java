@@ -10,7 +10,6 @@ import name.levering.ryan.sparql.common.RdfSource;
 import name.levering.ryan.sparql.model.TripleConstraint;
 import name.levering.ryan.sparql.model.data.SelectQueryData;
 import name.levering.ryan.sparql.model.logic.SelectQueryLogic;
-import org.neo4j.util.matching.PatternMatcher;
 import org.neo4j.util.matching.PatternNode;
 
 public class NeoSelectQueryLogic extends AbstractNeoQueryLogic
@@ -61,8 +60,7 @@ public class NeoSelectQueryLogic extends AbstractNeoQueryLogic
 		PatternNode startNode = this.getStartNode();
 
 		return new NeoRdfBindingSet( this.getNeoVariables(),
-			PatternMatcher.getMatcher().match( startNode,
-				this.metaModel.getClassNode( startNode.getLabel() ) ) );
+			this.performMatches( startNode ) );
 	}
 	
 	private void addTypes( Set<TripleConstraint> constraints )

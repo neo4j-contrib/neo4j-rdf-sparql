@@ -1,12 +1,13 @@
 package org.swami.om2.neorepo.sparql;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import name.levering.ryan.sparql.common.QueryException;
 import name.levering.ryan.sparql.model.TripleConstraint;
 import name.levering.ryan.sparql.model.logic.ExpressionLogic;
@@ -14,8 +15,9 @@ import name.levering.ryan.sparql.parser.model.ASTLiteral;
 import name.levering.ryan.sparql.parser.model.ASTQName;
 import name.levering.ryan.sparql.parser.model.ASTVar;
 import name.levering.ryan.sparql.parser.model.URINode;
-
 import org.neo4j.api.core.RelationshipType;
+import org.neo4j.util.matching.PatternMatch;
+import org.neo4j.util.matching.PatternMatcher;
 import org.neo4j.util.matching.PatternNode;
 import org.neo4j.util.matching.PatternRelationship;
 import org.swami.om2.neorepo.sparql.MetaModelProxy.OwlPropertyType;
@@ -167,7 +169,28 @@ public abstract class AbstractNeoQueryLogic
 		
 		return node;
 	}
-
+	
+	protected Iterable<PatternMatch> performMatches(
+		PatternNode startNode )
+	{
+		ArrayList<Iterable<PatternMatch>> results =
+			new ArrayList<Iterable<PatternMatch>>();
+		for ( PatternNode start : this.getPossibleStartNodes( startNode ) )
+		{
+			results.add( PatternMatcher.getMatcher().match( start,
+				this.metaModel.getClassNode( startNode.getLabel() ) ) );
+		}
+		return new PatternMatchesWrapper( results );
+	}
+	
+	private Iterable<PatternNode> getPossibleStartNodes(
+		PatternNode startNode )
+	{
+		ArrayList<PatternNode> startNodes = new ArrayList<PatternNode>();
+		startNodes.add( startNode );
+		return startNodes;
+	}
+	
 	private PatternNode getOrCreatePatternNode( ExpressionLogic expression )
 	{
 		PatternNode node = this.graph.get( expression );
@@ -296,5 +319,71 @@ public abstract class AbstractNeoQueryLogic
 		}
 		
 		return namespace + localName;
+	}
+
+	private class PatternMatchesWrapper
+		implements Iterable<PatternMatch>, Iterator<PatternMatch>
+	{
+		private Iterator<Iterable<PatternMatch>> matches;
+		private Iterator<PatternMatch> current;
+		
+		PatternMatchesWrapper( Iterable<Iterable<PatternMatch>> matches )
+		{
+			this.matches = matches.iterator();
+			if ( this.matches.hasNext() )
+			{
+				this.current = this.matches.next().iterator();
+			}
+		}
+		
+		public Iterator<PatternMatch> iterator()
+		{
+			return this;
+		}
+	
+		public boolean hasNext()
+		{
+			if ( this.current == null )
+			{
+				return false;
+			}
+			else if ( this.current.hasNext() )
+			{
+				return true;
+			}
+			else if ( this.matches.hasNext() )
+			{
+				this.current = this.matches.next().iterator();
+				// recursive call so we don't stop if there's an empty iterator
+				// in the middle of this.matches.
+				return this.hasNext();
+			}
+			
+			return false;
+		}
+	
+		public PatternMatch next()
+		{
+			if ( this.current != null && this.current.hasNext() )
+			{
+				return this.current.next();
+			}
+			else if ( this.matches.hasNext() )
+			{
+				this.current = this.matches.next().iterator();
+				// recursive call so we don't return null if there's an empty
+				// iterator in the middle of this.matches.
+				return this.next();
+			}
+			else
+			{
+				return null;
+			}
+		}
+	
+		public void remove()
+		{
+			throw new RuntimeException( "Remove is not supported" );
+		}
 	}
 }
