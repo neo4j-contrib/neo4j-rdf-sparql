@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import name.levering.ryan.sparql.common.QueryException;
 import name.levering.ryan.sparql.model.TripleConstraint;
 import name.levering.ryan.sparql.model.logic.ExpressionLogic;
@@ -15,6 +16,7 @@ import name.levering.ryan.sparql.parser.model.ASTLiteral;
 import name.levering.ryan.sparql.parser.model.ASTQName;
 import name.levering.ryan.sparql.parser.model.ASTVar;
 import name.levering.ryan.sparql.parser.model.URINode;
+
 import org.neo4j.api.core.RelationshipType;
 import org.neo4j.util.matching.PatternMatch;
 import org.neo4j.util.matching.PatternMatcher;
@@ -71,7 +73,7 @@ public abstract class AbstractNeoQueryLogic
 		PatternNode subjectNode = this.getOrCreatePatternNode(
 			constraint.getSubjectExpression() );
 		PatternNode objectNode = this.getOrCreatePatternNode(
-			constraint.getObjectExpression() );
+			constraint.getObjectExpression(), ON_CREATED_TYPE );
 		subjectNode.createRelationshipTo( objectNode,
 			this.metaModel.getTypeRelationship() );
 		String objectUri = this.toUri( constraint.getObjectExpression() );
@@ -175,28 +177,40 @@ public abstract class AbstractNeoQueryLogic
 	{
 		ArrayList<Iterable<PatternMatch>> results =
 			new ArrayList<Iterable<PatternMatch>>();
-		for ( PatternNode start : this.getPossibleStartNodes( startNode ) )
+		String[] types =
+			this.metaModel.getSubTypes( startNode.getLabel(), true );
+		for ( String type : types )
 		{
-			results.add( PatternMatcher.getMatcher().match( start,
-				this.metaModel.getClassNode( startNode.getLabel() ) ) );
+			results.add( PatternMatcher.getMatcher().match( startNode,
+				this.metaModel.getClassNode( type ) ) );
 		}
 		return new PatternMatchesWrapper( results );
 	}
 	
-	private Iterable<PatternNode> getPossibleStartNodes(
-		PatternNode startNode )
-	{
-		ArrayList<PatternNode> startNodes = new ArrayList<PatternNode>();
-		startNodes.add( startNode );
-		return startNodes;
-	}
+//	private Iterable<PatternNode> getStartNodes(
+//		PatternNode startNode )
+//	{
+//		ArrayList<PatternNode> startNodes = new ArrayList<PatternNode>();
+//		startNodes.add( startNode );
+//		return startNodes;
+//	}
 	
 	private PatternNode getOrCreatePatternNode( ExpressionLogic expression )
+	{
+		return getOrCreatePatternNode( expression, null );
+	}
+	
+	private PatternNode getOrCreatePatternNode( ExpressionLogic expression,
+		RunOnPatternNode runOnCreation )
 	{
 		PatternNode node = this.graph.get( expression );
 		if ( node == null )
 		{
 			node = this.createPatternNode( expression );
+			if ( runOnCreation != null )
+			{
+				runOnCreation.onCreated( node );
+			}
 		}
 		return node;
 	}
@@ -386,4 +400,19 @@ public abstract class AbstractNeoQueryLogic
 			throw new RuntimeException( "Remove is not supported" );
 		}
 	}
+	
+	private interface RunOnPatternNode
+	{
+		void onCreated( PatternNode node );
+	}
+	
+	private final RunOnPatternNode ON_CREATED_TYPE =
+		new RunOnPatternNode()
+	{
+		public void onCreated( PatternNode node )
+		{
+			node.addPropertyEqualConstraint( metaModel.getNodeTypeNameKey(),
+				metaModel.getSubTypes( node.getLabel(), true ) );
+		}
+	};
 }

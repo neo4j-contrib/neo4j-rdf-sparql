@@ -80,6 +80,7 @@ public abstract class SparqlTestCase extends TestCase
 	protected Node createReferenceNode( String name, String uri )
 	{
 		Node referenceNode = this.createNode( name );
+		referenceNode.setProperty( this.metaModel.getNodeTypeNameKey(), uri );
 		this.metaModel.addClassNode( uri, referenceNode );
 		return referenceNode;
 	}

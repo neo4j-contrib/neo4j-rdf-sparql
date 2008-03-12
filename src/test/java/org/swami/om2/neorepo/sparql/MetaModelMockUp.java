@@ -2,6 +2,7 @@ package org.swami.om2.neorepo.sparql;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.neo4j.api.core.Node;
 import org.neo4j.api.core.RelationshipType;
 
@@ -32,6 +33,11 @@ public class MetaModelMockUp implements MetaModelProxy
 	public String getAboutKey()
 	{
 		return "about";
+	}
+	
+	public String getNodeTypeNameKey()
+	{
+		return "name";
 	}
 	
 	public OwlProperty getOwlProperty(
@@ -66,6 +72,11 @@ public class MetaModelMockUp implements MetaModelProxy
 	{
 		// TODO?
 		return null;
+	}
+	
+	public String[] getSubTypes( String type, boolean includeMyself )
+	{
+		return new String[] { type };
 	}
 	
 	// Help method for the unit tests.

@@ -15,6 +15,8 @@ public interface MetaModelProxy
 	
 	public String getAboutKey();
 	
+	public String getNodeTypeNameKey();
+	
 	/**
 	 * @param subjectUri
 	 * @param predicateUri
@@ -34,4 +36,6 @@ public interface MetaModelProxy
 		String value );
 	
 	public String getObjectType( String subjectUri, String predicateUri );
+	
+	public String[] getSubTypes( String type, boolean includeMyself );
 }

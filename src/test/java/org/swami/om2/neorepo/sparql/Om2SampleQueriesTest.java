@@ -13,7 +13,7 @@ import org.neo4j.api.core.RelationshipType;
 import org.neo4j.api.core.Transaction;
 import org.swami.om2.neorepo.sparql.MetaModelProxy.OwlPropertyType;
 
-public class Om2SampleQueries extends SparqlTestCase
+public class Om2SampleQueriesTest extends SparqlTestCase
 {
 	public static enum Om2RelationshipType implements RelationshipType
 	{
@@ -52,7 +52,7 @@ public class Om2SampleQueries extends SparqlTestCase
 		counts.put( LADOK_NAMESPACE + "CourseInstance", new Integer( 5 ) );
 	}
 	
-	public Om2SampleQueries( String name )
+	public Om2SampleQueriesTest( String name )
 	{
 		super( name, new MetaModelMockUp(
 			types, values, counts, Om2RelationshipType.INSTANCE_OF ) );
