@@ -157,7 +157,6 @@ public abstract class SparqlTestCase extends TestCase
 		System.out.println( "printing matches");
 		while ( matches.hasNext() )
 		{
-			System.out.println( "found match" );
 			NeoBindingRow match = matches.next();
 			this.printMatch( match );
 		}

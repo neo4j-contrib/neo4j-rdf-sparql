@@ -30,14 +30,20 @@ public class NeoBindingRow implements RdfBindingRow
 		NeoVariable neoVariable = ( NeoVariable ) variable;
 		for ( PatternElement element : this.match.getElements() )
 		{
-			if ( element.getPatternNode().equals( neoVariable.getNode() ) )
+			if ( element.getPatternNode().getLabel().equals(
+				neoVariable.getNode().getLabel() ) )
 			{
-				return new NeoValue(
-					element.getNode().getProperty(
-						neoVariable.getProperty() ) );
+				if ( element.getNode().hasProperty(
+					neoVariable.getProperty() ) )
+				{
+					return new NeoValue( element.getNode().getProperty(
+							neoVariable.getProperty() ) );
+				}
+				// Value was optional so just break and return ""
+				break;
 			}
 		}
-		return null;
+		return new NeoValue( "" );
 	}
 
 	public List<Value> getValues()
@@ -49,7 +55,8 @@ public class NeoBindingRow implements RdfBindingRow
 		{
 			for ( PatternElement element : this.match.getElements() )
 			{
-				if ( variable.getNode().equals( element.getPatternNode() ) )
+				if ( variable.getNode().getLabel().equals(
+					element.getPatternNode().getLabel() ) )
 				{
 					values.add( new NeoValue(
 						element.getNode().getProperty(
@@ -79,6 +86,11 @@ public class NeoBindingRow implements RdfBindingRow
 		@Override
 		public String toString()
 		{
+			if ( value == null )
+			{
+				return "";
+			}
+			
 			return value.toString();
 		}
 	}

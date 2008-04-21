@@ -81,8 +81,7 @@ public class NeoLogic extends BaseLogic
 	public ConstraintLogic getOptionalConstraintLogic(
 		OptionalConstraintData data, SPARQLValueFactory valueFactory )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+		return new NeoOptionalConstraintLogic( data, valueFactory );
 	}
 
 	public OrderExpressionLogic getOrderExpressionLogic(

@@ -59,12 +59,12 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	}
 	
 	Node studentReferenceNode;
-	Node studentA; // other and registered to courseA
+	Node studentA; // other and takes courseA/courseE and is registered
 	Node studentB; // no other
-	Node studentC; // other and registered to courseA
-	Node studentD; // other and registered to courseB
-	Node studentE; // other and accepted to courseA
-	Node studentF; // other and accepted to courseB
+	Node studentC; // other and takes courseA and is registered
+	Node studentD; // other and takes courseB and is registered
+	Node studentE; // other and takes courseA and is accepted
+	Node studentF; // other and takes CourseB and is accepted
 	Node personReferenceNode;
 	Node personA;
 	Node personB;
@@ -83,6 +83,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	Node courseB; // courseId: "KOSB15"
 	Node courseC;
 	Node courseD; // courseId: "TMHB21", run by the "Psykologi" department
+	Node courseE;
 	
 	@Override
 	public void setUp()
@@ -119,6 +120,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			courseC = this.createNode( "courseC", courseReferenceNode );
 			courseD = this.createNode( "courseD", courseReferenceNode );
 			courseD.setProperty( "courseId", "TMHB21" );
+			courseE = this.createNode( "courseE", courseReferenceNode );
 			
 			departmentReferenceNode = this.createReferenceNode(
 				"departmentReferenceNode", PRIM_NAMESPACE + "Department" );
@@ -164,6 +166,8 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			
 			studentA.createRelationshipTo(
 				courseA, Om2RelationshipType.OTHER );
+			studentA.createRelationshipTo(
+				courseE, Om2RelationshipType.OTHER );
 			studentC.createRelationshipTo(
 				courseA, Om2RelationshipType.OTHER );
 			studentD.createRelationshipTo(
@@ -358,6 +362,57 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 				( ( SelectQuery ) query ).execute( new NeoRdfSource() );
 			
 			this.assertResult( result, null, null );
+			
+			tx.success();
+		}
+		finally
+		{
+			tx.finish();
+		}
+	}
+	
+	public void testQuery6() throws Exception
+	{
+		Transaction tx = Transaction.begin();
+		try
+		{
+			// Get all students
+			// Optional: The person the student is connected to
+			// Optional: Every course the student takes
+			// Optional: The student's registration status
+			Query query = SPARQLParser.parse( new StringReader(
+				"PREFIX prim: <http://www.openmetadir.org/om2/prim-1.owl#> " +
+				"PREFIX ladok: <http://www.swami.se/om2/ladok-1.owl#> " +
+				"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+				"SELECT ?student ?person ?course ?state " +
+				"WHERE { " +
+				"?student rdf:type ladok:Student . " +
+				"OPTIONAL { ?student prim:other ?course . " +
+				"?course rdf:type ladok:CourseInstance } " +
+				"OPTIONAL { ?student prim:one ?person . " +
+				"?person rdf:type prim:Person } " +
+				"OPTIONAL { ?student ladok:state ?state } " +
+				"}" ) );
+				
+			RdfBindingSet result =
+				( ( SelectQuery ) query ).execute( new NeoRdfSource() );
+			
+			Map<String, Integer> variables =
+				this.createVariableMap( "student", "person", "course", "state" );
+			String[][] expectedResult = new String[][] {
+				{ "studentA", "personA", "28040ht06", "registered" },
+				{ "studentA", "personA", "courseE", "registered" },
+				{ "studentB", "personB", "", "" },
+				{ "studentC", "personC", "28040ht06", "registered" },
+				{ "studentD", "personD", "courseB", "registered" },
+				{ "studentE", "personE", "28040ht06", "accepted" },
+				{ "studentF", "personF", "courseB", "accepted" } };
+			this.assertResult( result, variables, expectedResult );
+			studentA.setProperty( "state", "registered" );
+			studentC.setProperty( "state", "registered" );
+			studentD.setProperty( "state", "registered" );
+			studentE.setProperty( "state", "accepted" );
+			studentF.setProperty( "state", "accepted" );
 			
 			tx.success();
 		}
