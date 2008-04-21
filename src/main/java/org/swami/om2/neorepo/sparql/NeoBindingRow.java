@@ -27,7 +27,7 @@ public class NeoBindingRow implements RdfBindingRow
 
 	public Value getValue( Variable variable )
 	{
-		NeoVariable neoVariable = ( NeoVariable ) variable;
+		NeoVariable neoVariable = this.getNeoVariable( variable );
 		for ( PatternElement element : this.match.getElements() )
 		{
 			if ( element.getPatternNode().getLabel().equals(
@@ -44,6 +44,24 @@ public class NeoBindingRow implements RdfBindingRow
 			}
 		}
 		return new NeoValue( "" );
+	}
+
+	private NeoVariable getNeoVariable( Variable variable )
+	{
+		if ( variable instanceof NeoVariable )
+		{
+			return ( NeoVariable ) variable;
+		}
+		
+		for ( NeoVariable neoVariable : this.bindingSet.getVariables() )
+		{
+			if ( neoVariable.getName().equals( variable.getName() ) )
+			{
+				return neoVariable;
+			}
+		}
+		
+		throw new RuntimeException( "NeoVariable not found." );
 	}
 
 	public List<Value> getValues()

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import junit.framework.TestCase;
+import name.levering.ryan.sparql.common.LenientStatement;
 import name.levering.ryan.sparql.common.RdfBindingRow;
 import name.levering.ryan.sparql.common.RdfBindingSet;
 import name.levering.ryan.sparql.common.Variable;
@@ -85,6 +86,27 @@ public abstract class SparqlTestCase extends TestCase
 		return referenceNode;
 	}
 	
+	protected void assertResult( NeoRdfGraph result, String[] expectedResult )
+	{
+		Iterator<LenientStatement> statements = result.iterator();
+		
+		assertTrue( ( expectedResult != null && statements.hasNext() ) ||
+			( expectedResult == null && !statements.hasNext() ) );
+		
+		int i = 0;
+		for ( LenientStatement statement : result )
+		{
+			assertEquals( statement.toString(), expectedResult[ i ] );
+			i++;
+		}
+
+		if ( expectedResult != null )
+		{
+			assertTrue( "Wrong number of matches were found.",
+				i == expectedResult.length );
+		}
+	}
+	
 	protected void assertResult( RdfBindingSet result,
 		Map<String, Integer> variables, String[][] expectedResult )
 	{
@@ -160,6 +182,17 @@ public abstract class SparqlTestCase extends TestCase
 			NeoBindingRow match = matches.next();
 			this.printMatch( match );
 		}
+	}
+	
+	protected void printRdfGraph( NeoRdfGraph graph )
+	{
+		System.out.println( "Graph: " );
+		for ( LenientStatement statement : graph )
+		{
+			System.out.println( statement.getSubject() + " " + 
+				statement.getPredicate() + " " + statement.getObject() );
+		}
+		System.out.println( "end of graph" );
 	}
 
 	protected void printMatch( NeoBindingRow match )

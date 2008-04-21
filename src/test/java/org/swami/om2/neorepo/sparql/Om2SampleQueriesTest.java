@@ -4,7 +4,9 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 import name.levering.ryan.sparql.common.RdfBindingSet;
+import name.levering.ryan.sparql.common.RdfGraph;
 import name.levering.ryan.sparql.logic.SPARQLQueryLogic;
+import name.levering.ryan.sparql.model.ConstructQuery;
 import name.levering.ryan.sparql.model.Query;
 import name.levering.ryan.sparql.model.SelectQuery;
 import name.levering.ryan.sparql.parser.SPARQLParser;
@@ -414,6 +416,52 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			studentE.setProperty( "state", "accepted" );
 			studentF.setProperty( "state", "accepted" );
 			
+			tx.success();
+		}
+		finally
+		{
+			tx.finish();
+		}
+	}
+
+	public void testQuery7() throws Exception
+	{
+		Transaction tx = Transaction.begin();
+		try
+		{
+			// Construct a new rdf graph from all students/persons
+			// ( The new graph doesn't make sense, but hey... ;) )
+			Query query = SPARQLParser.parse( new StringReader(
+				"PREFIX prim: <http://www.openmetadir.org/om2/prim-1.owl#> " +
+				"PREFIX ladok: <http://www.swami.se/om2/ladok-1.owl#> " +
+				"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+				"CONSTRUCT { ?student prim:one ?person . " + 
+				"?person prim:other ?student } " +
+				"WHERE { " +
+				"?student rdf:type ladok:Student . " +
+				"?student prim:one ?person . " +
+				"?person rdf:type prim:Person " +
+				"}" ) );
+				
+			RdfGraph result =
+				( ( ConstructQuery ) query ).execute( new NeoRdfSource() );
+			String[] expectedResult = new String[] {
+			"(studentA, http://www.openmetadir.org/om2/prim-1.owl#one, personA)",
+			"(personA, http://www.openmetadir.org/om2/prim-1.owl#other, studentA)",
+			"(studentB, http://www.openmetadir.org/om2/prim-1.owl#one, personB)",
+			"(personB, http://www.openmetadir.org/om2/prim-1.owl#other, studentB)",
+			"(studentC, http://www.openmetadir.org/om2/prim-1.owl#one, personC)",
+			"(personC, http://www.openmetadir.org/om2/prim-1.owl#other, studentC)",
+			"(studentD, http://www.openmetadir.org/om2/prim-1.owl#one, personD)",
+			"(personD, http://www.openmetadir.org/om2/prim-1.owl#other, studentD)",
+			"(studentE, http://www.openmetadir.org/om2/prim-1.owl#one, personE)",
+			"(personE, http://www.openmetadir.org/om2/prim-1.owl#other, studentE)",
+			"(studentF, http://www.openmetadir.org/om2/prim-1.owl#one, personF)",
+			"(personF, http://www.openmetadir.org/om2/prim-1.owl#other, studentF)"
+			};
+			
+			this.assertResult( ( NeoRdfGraph ) result, expectedResult );
+
 			tx.success();
 		}
 		finally

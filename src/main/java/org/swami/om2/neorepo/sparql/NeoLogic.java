@@ -43,8 +43,7 @@ public class NeoLogic extends BaseLogic
 	public ConstructQueryLogic getConstructQueryLogic( ConstructQueryData data,
 		SPARQLValueFactory valueFactory )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+		return new NeoConstructQueryLogic( data, this.metaModel );
 	}
 
 	public DescribeQueryLogic getDescribeQueryLogic( DescribeQueryData data )
