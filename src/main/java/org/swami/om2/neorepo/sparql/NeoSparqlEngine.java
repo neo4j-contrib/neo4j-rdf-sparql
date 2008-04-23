@@ -14,6 +14,12 @@ public class NeoSparqlEngine
 		RdfRepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel )
 	{
+	    if ( SPARQLQueryLogic.getInstance() != null )
+	    {
+	        throw new IllegalStateException( "There's already a SPARQL engine" +
+	        	" running, unfortunately we only support one SPARQL engine " +
+	        	"per JVM at this moment" );
+	    }
 		SPARQLQueryLogic.getInstance().setLogicFactory(
 			new NeoLogic( representationStrategy, metaModel ) );
 	}
