@@ -8,8 +8,7 @@ import org.neo4j.api.core.Node;
 import org.neo4j.api.core.RelationshipType;
 import org.neo4j.neometa.structure.MetaStructure;
 import org.neo4j.neometa.structure.MetaStructureClass;
-import org.swami.om2.neorepo.sparql.MetaModelProxy;
-import org.swami.om2.neorepo.sparql.OwlProperty;
+import org.neo4j.rdf.store.representation.AbstractNode;
 
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.NodeType;
 
@@ -52,20 +51,27 @@ public class MetaModelProxyImpl implements MetaModelProxy
 	 * @return the number of instances of the {@link NodeType} with URI
 	 * <code>uri</code>.
 	 */
-	public int getCount( String uri )
+	public int getCount( AbstractNode node )
 	{
-	    MetaStructureClass cls =
-	        meta.getGlobalNamespace().getMetaClass( uri, false );
-//	    if ( cls == null )
-//	    {
-//	        cls = meta.getGlobalNamespace().getMetaProperty( uri, false );
-//	    }
-	    if ( cls == null )
-	    {
-	        throw new RuntimeException( "Not found ' " + uri + " '" );
-	    }
+		int count = Integer.MAX_VALUE;
+		if ( node.getUriOrNull() != null )
+		{
+			String uri = node.getUriOrNull().getUriAsString();
+		    MetaStructureClass cls =
+		        meta.getGlobalNamespace().getMetaClass(
+		        	node.getUriOrNull().getUriAsString(), false );
+	//	    if ( cls == null )
+	//	    {
+	//	        cls = meta.getGlobalNamespace().getMetaProperty( uri, false );
+	//	    }
+		    if ( cls == null )
+		    {
+		        throw new RuntimeException( "Not found ' " + uri + " '" );
+		    }
+		    count = cls.getInstances().size();
+		}
 	    
-	    return cls.getInstances().size();
+	    return count;
 	}
 	
 	/**
