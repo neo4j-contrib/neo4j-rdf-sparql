@@ -2,9 +2,9 @@ package org.swami.om2.neorepo.sparql;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.neo4j.api.core.Node;
 import org.neo4j.api.core.RelationshipType;
+import org.neo4j.rdf.store.representation.AbstractNode;
 
 public class MetaModelMockUp implements MetaModelProxy
 {
@@ -16,13 +16,11 @@ public class MetaModelMockUp implements MetaModelProxy
 	private Map<String, Integer> counts;
 	
 	public MetaModelMockUp( Map<String, OwlPropertyType> types,
-		Map<String, Object> values, Map<String, Integer> counts,
-		RelationshipType instanceOf )
+		Map<String, Object> values, Map<String, Integer> counts )
 	{
 		this.types = types;
 		this.values = values;
 		this.counts = counts;
-		this.instanceOf = instanceOf;
 	}
 
 	public RelationshipType getTypeRelationship()
@@ -52,9 +50,12 @@ public class MetaModelMockUp implements MetaModelProxy
 		return "http://www.w3.org/1999/02/22-rdf-syntax-ns#type".equals( uri );
 	}
 	
-	public int getCount( String uri )
+	public int getCount( AbstractNode abstractNode )
 	{
-		return this.counts.get( uri );
+		Integer count =
+			this.counts.get( abstractNode.getUriOrNull().getUriAsString() );
+		System.out.println( "count: " + count );
+		return count == null ? Integer.MAX_VALUE : count;
 	}
 	
 	public Node getClassNode( String uri )

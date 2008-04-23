@@ -23,14 +23,18 @@ import name.levering.ryan.sparql.model.logic.DescribeQueryLogic;
 import name.levering.ryan.sparql.model.logic.ExpressionLogic;
 import name.levering.ryan.sparql.model.logic.OrderExpressionLogic;
 import name.levering.ryan.sparql.model.logic.SelectQueryLogic;
+import org.neo4j.rdf.store.representation.RdfRepresentationStrategy;
 import org.openrdf.model.URI;
 
 public class NeoLogic extends BaseLogic
 {
+	private RdfRepresentationStrategy representationStrategy;
 	private MetaModelProxy metaModel;
 	
-	public NeoLogic( MetaModelProxy metaModel )
+	public NeoLogic( RdfRepresentationStrategy representationStrategy,
+		MetaModelProxy metaModel )
 	{
+		this.representationStrategy = representationStrategy;
 		this.metaModel = metaModel;
 	}
 	
@@ -43,7 +47,8 @@ public class NeoLogic extends BaseLogic
 	public ConstructQueryLogic getConstructQueryLogic( ConstructQueryData data,
 		SPARQLValueFactory valueFactory )
 	{
-		return new NeoConstructQueryLogic( data, this.metaModel );
+		return new NeoConstructQueryLogic( data, this.representationStrategy,
+			this.metaModel );
 	}
 
 	public DescribeQueryLogic getDescribeQueryLogic( DescribeQueryData data )
@@ -92,7 +97,8 @@ public class NeoLogic extends BaseLogic
 
 	public SelectQueryLogic getSelectQueryLogic( SelectQueryData data )
 	{
-		return new NeoSelectQueryLogic( data, this.metaModel );
+		return new NeoSelectQueryLogic( data, this.representationStrategy,
+			this.metaModel );
 	}
 
 	public ConstraintLogic getTripleConstraintLogic(

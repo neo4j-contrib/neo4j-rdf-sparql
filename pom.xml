@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.neo4j</groupId>
 	<artifactId>sparql-engine-neo</artifactId>
-	<version>0.3-SNAPSHOT</version>
+	<version>0.4-SNAPSHOT</version>
 	<name>Sparql-engine for neo.</name>
 	<description>A sparql-engine adapter for neo.</description>
 
@@ -28,6 +28,11 @@
 			<groupId>org.neo4j</groupId>
 			<artifactId>graph-matching</artifactId>
 			<version>0.3-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo-rdf</artifactId>
+			<version>0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

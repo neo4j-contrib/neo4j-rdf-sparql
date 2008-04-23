@@ -2,6 +2,7 @@ package org.swami.om2.neorepo.sparql;
 
 import org.neo4j.api.core.Node;
 import org.neo4j.api.core.RelationshipType;
+import org.neo4j.rdf.store.representation.AbstractNode;
 
 public interface MetaModelProxy
 {
@@ -28,7 +29,7 @@ public interface MetaModelProxy
 	
 	public boolean isTypeProperty( String uri );
 	
-	public int getCount( String uri );
+	public int getCount( AbstractNode abstractNode );
 	
 	public Node getClassNode( String uri );
 	

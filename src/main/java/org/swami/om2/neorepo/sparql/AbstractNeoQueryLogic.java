@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import name.levering.ryan.sparql.model.GroupConstraint;
+import org.neo4j.rdf.store.representation.RdfRepresentationStrategy;
 import org.neo4j.util.matching.PatternMatch;
 import org.neo4j.util.matching.PatternMatcher;
 import org.neo4j.util.matching.PatternNode;
@@ -13,10 +14,13 @@ public abstract class AbstractNeoQueryLogic
 {
 	private List<NeoVariable> variableList = new LinkedList<NeoVariable>();
 	private MetaModelProxy metaModel;
+	private RdfRepresentationStrategy representationStrategy;
 
-	AbstractNeoQueryLogic( MetaModelProxy metaModel )
+	AbstractNeoQueryLogic( RdfRepresentationStrategy representationStrategy,
+		MetaModelProxy metaModel )
 	{
 		this.metaModel = metaModel;
+		this.representationStrategy = representationStrategy;
 	}
 	
 	protected List<NeoVariable> getNeoVariables()
@@ -28,14 +32,18 @@ public abstract class AbstractNeoQueryLogic
 	{
 		ArrayList<Iterable<PatternMatch>> results =
 			new ArrayList<Iterable<PatternMatch>>();
-		PatternNode startNode = graph.getStartNode();
+		PatternNodeAndNodePair startNode = graph.getStartNode();
+		System.out.println( "startNode: " + startNode );
+		PatternNode patternNode = startNode.getPatternNode();
+		// TODO: Fix inference
 		String[] types =
-			this.metaModel.getSubTypes( startNode.getLabel(), true );
+			this.metaModel.getSubTypes( patternNode.getLabel(), true );
 		for ( String type : types )
 		{
-			results.add( PatternMatcher.getMatcher().match( startNode,
-				this.metaModel.getClassNode( type ),
-				graph.getOptionalGraphs() ) );
+			System.out.println( "type: " + type );
+			System.out.println( "type node: " + startNode.getNode() );
+			results.add( PatternMatcher.getMatcher().match( patternNode,
+				startNode.getNode(), graph.getOptionalGraphs() ) );
 		}
 		return new PatternMatchesWrapper( results );
 	}
@@ -50,9 +58,10 @@ public abstract class AbstractNeoQueryLogic
 	
 	protected QueryGraph buildGraph( GroupConstraint groupConstraint )
 	{
-		QueryGraph graph = new QueryGraph( this.metaModel, this.variableList );
+		QueryGraph graph = new QueryGraph( this.representationStrategy,
+			this.metaModel, this.variableList );
 		graph.build( groupConstraint );
-		graph.assertGraph();
+//		graph.assertGraph();
 
 		return graph;
 	}

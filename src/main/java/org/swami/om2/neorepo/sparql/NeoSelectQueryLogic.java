@@ -2,6 +2,7 @@ package org.swami.om2.neorepo.sparql;
 
 import java.util.LinkedList;
 import java.util.List;
+import org.neo4j.rdf.store.representation.RdfRepresentationStrategy;
 import name.levering.ryan.sparql.common.RdfBindingSet;
 import name.levering.ryan.sparql.common.RdfSource;
 import name.levering.ryan.sparql.model.data.SelectQueryData;
@@ -12,10 +13,11 @@ public class NeoSelectQueryLogic extends AbstractNeoQueryLogic
 {
 	private SelectQueryData data;
 	
-	public NeoSelectQueryLogic(
-		SelectQueryData data, MetaModelProxy metaModel )
+	public NeoSelectQueryLogic( SelectQueryData data,
+		RdfRepresentationStrategy representationStrategy,
+		MetaModelProxy metaModel )
 	{
-		super( metaModel );
+		super( representationStrategy, metaModel );
 		this.data = data;
 	}
 	

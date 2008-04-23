@@ -6,11 +6,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import name.levering.ryan.sparql.common.RdfBindingSet;
-import name.levering.ryan.sparql.logic.SPARQLQueryLogic;
 import name.levering.ryan.sparql.model.Query;
 import name.levering.ryan.sparql.model.SelectQuery;
 import name.levering.ryan.sparql.parser.ParseException;
-import name.levering.ryan.sparql.parser.SPARQLParser;
 import org.neo4j.api.core.Node;
 import org.neo4j.api.core.RelationshipType;
 import org.neo4j.api.core.Transaction;
@@ -46,13 +44,13 @@ public class SimpleTest extends SparqlTestCase
 	public SimpleTest( String name )
 	{
 		super( name, new MetaModelMockUp(
-			types, values, counts, MyRelationshipType.INSTANCE_OF ) );
+			types, values, counts ) );
 	}
 	
 	@Override
 	public void setUp()
 	{
-		super.setUp( MyRelationshipType.class );
+		super.setUp();
 
 		Transaction tx = Transaction.begin();
 		try
@@ -72,9 +70,6 @@ public class SimpleTest extends SparqlTestCase
 			
 			c.createRelationshipTo( e, MyRelationshipType.KNOWS );
 			
-			SPARQLQueryLogic.getInstance().setLogicFactory(
-				new NeoLogic( this.metaModel ) );
-
 			tx.success();
 		}
 		finally
@@ -100,7 +95,7 @@ public class SimpleTest extends SparqlTestCase
 			
 			try
 			{
-				Query query = SPARQLParser.parse( new StringReader(
+				Query query = this.sparqlEngine.parse( new StringReader(
 					"PREFIX foaf: <http://xmlns.com/foaf/1.0/> " + 
 					"SELECT ?person ?friendOfFriend " +
 					"WHERE { ?person foaf:knows ?x . " +
@@ -113,7 +108,7 @@ public class SimpleTest extends SparqlTestCase
 				// Ok.
 			}
 			
-			Query query = SPARQLParser.parse( new StringReader(
+			Query query = this.sparqlEngine.parse( new StringReader(
 				"PREFIX foaf: <http://xmlns.com/foaf/1.0/> " +
 				"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
 				"SELECT ?person ?friendOfFriend " +

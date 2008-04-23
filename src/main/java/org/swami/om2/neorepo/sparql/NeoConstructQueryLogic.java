@@ -14,6 +14,7 @@ import name.levering.ryan.sparql.model.data.ConstructQueryData;
 import name.levering.ryan.sparql.model.data.UnboundStatement;
 import name.levering.ryan.sparql.model.logic.ConstructQueryLogic;
 import name.levering.ryan.sparql.model.logic.ExpressionLogic;
+import org.neo4j.rdf.store.representation.RdfRepresentationStrategy;
 import org.openrdf.model.URI;
 
 public class NeoConstructQueryLogic extends AbstractNeoQueryLogic implements
@@ -22,9 +23,10 @@ public class NeoConstructQueryLogic extends AbstractNeoQueryLogic implements
 	private ConstructQueryData data;
 	
 	public NeoConstructQueryLogic( ConstructQueryData data,
+		RdfRepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel )
 	{
-		super( metaModel );
+		super( representationStrategy, metaModel );
 		this.data = data;
 	}
 	

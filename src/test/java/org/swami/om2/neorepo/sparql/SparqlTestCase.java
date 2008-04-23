@@ -12,10 +12,11 @@ import name.levering.ryan.sparql.common.RdfBindingRow;
 import name.levering.ryan.sparql.common.RdfBindingSet;
 import name.levering.ryan.sparql.common.Variable;
 import org.neo4j.api.core.EmbeddedNeo;
+import org.neo4j.api.core.NeoService;
 import org.neo4j.api.core.Node;
 import org.neo4j.api.core.Relationship;
-import org.neo4j.api.core.RelationshipType;
 import org.neo4j.api.core.Transaction;
+import org.neo4j.rdf.store.representation.DenseRepresentationStrategy;
 
 public abstract class SparqlTestCase extends TestCase
 {
@@ -27,8 +28,9 @@ public abstract class SparqlTestCase extends TestCase
 		"http://www.openmetadir.org/om2/prim-1.owl#";
 	final static String FOAF_NAMESPACE =
 		"http://xmlns.com/foaf/1.0/";
-	protected EmbeddedNeo neo;
+	private NeoService neo;
 	protected MetaModelMockUp metaModel;
+	protected NeoSparqlEngine sparqlEngine;
 	private Set<Node> createdNodes;
 	
 	public SparqlTestCase( String name, MetaModelMockUp metaModel )
@@ -38,10 +40,20 @@ public abstract class SparqlTestCase extends TestCase
 		this.metaModel = metaModel;
 	}
 	
-	public void setUp(
-		Class<? extends RelationshipType> relationshipTypeClass )
+	@Override
+	public void setUp()
 	{
-		neo = new EmbeddedNeo( "var-unit-tests" );
+		this.sparqlEngine = new NeoSparqlEngine(
+			new DenseRepresentationStrategy( this.neo() ), this.metaModel );
+	}
+	
+	NeoService neo()
+	{
+		if ( this.neo == null )
+		{
+			this.neo = new EmbeddedNeo( "var-unit-tests" ); 
+		}
+		return this.neo;
 	}
 	
 	@Override
