@@ -32,7 +32,12 @@
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo-rdf</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>0.2-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>index-util</artifactId>	
+			<version>0.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

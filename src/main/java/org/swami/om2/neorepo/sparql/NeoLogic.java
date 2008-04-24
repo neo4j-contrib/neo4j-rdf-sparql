@@ -23,15 +23,16 @@ import name.levering.ryan.sparql.model.logic.DescribeQueryLogic;
 import name.levering.ryan.sparql.model.logic.ExpressionLogic;
 import name.levering.ryan.sparql.model.logic.OrderExpressionLogic;
 import name.levering.ryan.sparql.model.logic.SelectQueryLogic;
-import org.neo4j.rdf.store.representation.RdfRepresentationStrategy;
+
+import org.neo4j.rdf.store.representation.RepresentationStrategy;
 import org.openrdf.model.URI;
 
 public class NeoLogic extends BaseLogic
 {
-	private RdfRepresentationStrategy representationStrategy;
+	private RepresentationStrategy representationStrategy;
 	private MetaModelProxy metaModel;
 	
-	public NeoLogic( RdfRepresentationStrategy representationStrategy,
+	public NeoLogic( RepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel )
 	{
 		this.representationStrategy = representationStrategy;

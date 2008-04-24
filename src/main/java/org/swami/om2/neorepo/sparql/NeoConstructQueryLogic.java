@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+
 import name.levering.ryan.sparql.common.LenientStatement;
 import name.levering.ryan.sparql.common.RdfGraph;
 import name.levering.ryan.sparql.common.RdfSource;
@@ -14,7 +15,8 @@ import name.levering.ryan.sparql.model.data.ConstructQueryData;
 import name.levering.ryan.sparql.model.data.UnboundStatement;
 import name.levering.ryan.sparql.model.logic.ConstructQueryLogic;
 import name.levering.ryan.sparql.model.logic.ExpressionLogic;
-import org.neo4j.rdf.store.representation.RdfRepresentationStrategy;
+
+import org.neo4j.rdf.store.representation.RepresentationStrategy;
 import org.openrdf.model.URI;
 
 public class NeoConstructQueryLogic extends AbstractNeoQueryLogic implements
@@ -23,7 +25,7 @@ public class NeoConstructQueryLogic extends AbstractNeoQueryLogic implements
 	private ConstructQueryData data;
 	
 	public NeoConstructQueryLogic( ConstructQueryData data,
-		RdfRepresentationStrategy representationStrategy,
+		RepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel )
 	{
 		super( representationStrategy, metaModel );

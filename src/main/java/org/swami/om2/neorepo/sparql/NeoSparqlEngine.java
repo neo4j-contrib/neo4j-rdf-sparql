@@ -2,26 +2,29 @@ package org.swami.om2.neorepo.sparql;
 
 import java.io.InputStream;
 import java.io.Reader;
+
 import name.levering.ryan.sparql.logic.SPARQLQueryLogic;
 import name.levering.ryan.sparql.model.Query;
 import name.levering.ryan.sparql.parser.ParseException;
 import name.levering.ryan.sparql.parser.SPARQLParser;
-import org.neo4j.rdf.store.representation.RdfRepresentationStrategy;
+
+import org.neo4j.rdf.store.representation.RepresentationStrategy;
 
 public class NeoSparqlEngine
 {
-	public NeoSparqlEngine(
-		RdfRepresentationStrategy representationStrategy,
+	private static NeoLogic NEO_LOGIC;
+	
+	public NeoSparqlEngine( RepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel )
 	{
-	    if ( SPARQLQueryLogic.getInstance() != null )
-	    {
-	        throw new IllegalStateException( "There's already a SPARQL engine" +
-	        	" running, unfortunately we only support one SPARQL engine " +
-	        	"per JVM at this moment" );
-	    }
-		SPARQLQueryLogic.getInstance().setLogicFactory(
-			new NeoLogic( representationStrategy, metaModel ) );
+//	    if ( NEO_LOGIC != null )
+//	    {
+//	        throw new IllegalStateException( "There's already a SPARQL engine" +
+//	        	" running, unfortunately we only support one SPARQL engine " +
+//	        	"per JVM at this moment" );
+//	    }
+	    NEO_LOGIC = new NeoLogic( representationStrategy, metaModel );
+		SPARQLQueryLogic.getInstance().setLogicFactory( NEO_LOGIC );
 	}
 	
 	public Query parse( Reader queryReader ) throws ParseException

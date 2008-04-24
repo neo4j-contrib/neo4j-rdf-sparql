@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.neo4j.api.core.Node;
 import org.neo4j.api.core.RelationshipType;
+import org.neo4j.neometa.structure.MetaStructure;
 import org.neo4j.rdf.store.representation.AbstractNode;
 
 public class MetaModelMockUp implements MetaModelProxy
@@ -14,13 +15,20 @@ public class MetaModelMockUp implements MetaModelProxy
 		new HashMap<String, Node>();
 	private RelationshipType instanceOf;
 	private Map<String, Integer> counts;
+	private MetaStructure metaStructure;
 	
-	public MetaModelMockUp( Map<String, OwlPropertyType> types,
-		Map<String, Object> values, Map<String, Integer> counts )
+	public MetaModelMockUp(
+		MetaStructure metaStructure, Map<String, Integer> counts )
 	{
 		this.types = types;
 		this.values = values;
 		this.counts = counts;
+		this.metaStructure = metaStructure;
+	}
+	
+	public MetaStructure getMetaStructure()
+	{
+		return this.metaStructure;
 	}
 
 	public RelationshipType getTypeRelationship()
@@ -52,9 +60,12 @@ public class MetaModelMockUp implements MetaModelProxy
 	
 	public int getCount( AbstractNode abstractNode )
 	{
-		Integer count =
-			this.counts.get( abstractNode.getUriOrNull().getUriAsString() );
-		System.out.println( "count: " + count );
+		Integer count = null;
+		if ( abstractNode.getUriOrNull() != null )
+		{
+			count = this.counts.get(
+				abstractNode.getUriOrNull().getUriAsString() );
+		}
 		return count == null ? Integer.MAX_VALUE : count;
 	}
 	

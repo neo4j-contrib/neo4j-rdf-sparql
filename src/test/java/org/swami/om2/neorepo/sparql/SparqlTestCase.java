@@ -16,7 +16,8 @@ import org.neo4j.api.core.NeoService;
 import org.neo4j.api.core.Node;
 import org.neo4j.api.core.Relationship;
 import org.neo4j.api.core.Transaction;
-import org.neo4j.rdf.store.representation.DenseRepresentationStrategy;
+import org.neo4j.rdf.store.representation.RepresentationStrategy;
+import org.neo4j.rdf.store.representation.standard.DenseRepresentationStrategy;
 
 public abstract class SparqlTestCase extends TestCase
 {
@@ -28,48 +29,51 @@ public abstract class SparqlTestCase extends TestCase
 		"http://www.openmetadir.org/om2/prim-1.owl#";
 	final static String FOAF_NAMESPACE =
 		"http://xmlns.com/foaf/1.0/";
-	private NeoService neo;
-	protected MetaModelMockUp metaModel;
 	protected NeoSparqlEngine sparqlEngine;
+	private static NeoService neo = neo();
+	private Transaction tx;
+	protected MetaModelMockUp metaModel;
 	private Set<Node> createdNodes;
 	
-	public SparqlTestCase( String name, MetaModelMockUp metaModel )
+	public SparqlTestCase( String name, MetaModelMockUp metaModel,
+		RepresentationStrategy strategy )
 	{
 		super( name );
 		this.createdNodes = new HashSet<Node>();
 		this.metaModel = metaModel;
+		this.sparqlEngine = new NeoSparqlEngine( strategy, metaModel );
 	}
 	
 	@Override
 	public void setUp()
 	{
-		this.sparqlEngine = new NeoSparqlEngine(
-			new DenseRepresentationStrategy( this.neo() ), this.metaModel );
+		tx = neo().beginTx();
 	}
 	
-	NeoService neo()
+	protected static NeoService neo()
 	{
-		if ( this.neo == null )
+		if ( neo == null )
 		{
-			this.neo = new EmbeddedNeo( "var-unit-tests" ); 
+			neo = new EmbeddedNeo( "var/test/neo" );
+			Runtime.getRuntime().addShutdownHook( new Thread()
+			{
+				@Override
+				public void run()
+				{
+					neo.shutdown();
+				}
+			} );
 		}
-		return this.neo;
+		return neo;
 	}
 	
 	@Override
-	public void tearDown()
+	public void tearDown() throws Exception
 	{
-		Transaction tx = Transaction.begin();
-		try
-		{
-			this.deleteAllNodes();
-			tx.success();
-		}
-		finally
-		{
-			tx.finish();
-		}
-		neo.shutdown();
+		this.deleteAllNodes();
+		tx.success();
+		tx.finish();
+		super.tearDown();
 	}
 	
 	protected Node createNode( String name )
@@ -79,7 +83,7 @@ public abstract class SparqlTestCase extends TestCase
 	
 	protected Node createNode( String name, Node referenceNode )
 	{
-		Node node = this.neo.createNode();
+		Node node = neo().createNode();
 		node.setProperty( this.metaModel.getAboutKey(), name );
 		if ( referenceNode != null )
 		{
