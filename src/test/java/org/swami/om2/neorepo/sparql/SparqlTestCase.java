@@ -6,18 +6,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import junit.framework.TestCase;
 import name.levering.ryan.sparql.common.LenientStatement;
 import name.levering.ryan.sparql.common.RdfBindingRow;
 import name.levering.ryan.sparql.common.RdfBindingSet;
 import name.levering.ryan.sparql.common.Variable;
+
 import org.neo4j.api.core.EmbeddedNeo;
 import org.neo4j.api.core.NeoService;
 import org.neo4j.api.core.Node;
 import org.neo4j.api.core.Relationship;
 import org.neo4j.api.core.Transaction;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
-import org.neo4j.rdf.store.representation.standard.DenseRepresentationStrategy;
 
 public abstract class SparqlTestCase extends TestCase
 {

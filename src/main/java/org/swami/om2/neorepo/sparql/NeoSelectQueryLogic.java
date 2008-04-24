@@ -37,8 +37,8 @@ public class NeoSelectQueryLogic extends AbstractNeoQueryLogic
 		List<NeoVariable> neoVariables = new LinkedList<NeoVariable>();
 		for ( NeoVariable neoVariable : super.getNeoVariables() )
 		{
-			if ( this.data.getVariables().contains(
-				neoVariable.getVariable() ) )
+			if ( this.variableExists(
+				this.data.getVariables(), neoVariable.getName() ) )
 			{
 				neoVariables.add( neoVariable );
 			}

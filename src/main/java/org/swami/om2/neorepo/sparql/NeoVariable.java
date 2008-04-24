@@ -8,15 +8,15 @@ public class NeoVariable implements Variable
 	public static enum VariableType { LITERAL, URI };
 	
 	private VariableType variableType;
-	private Variable variable;
+	private String variableName;
 	private PatternNode node;
 	private String property;
 	
-	NeoVariable( Variable variable, VariableType variableType,
+	NeoVariable( String variableName, VariableType variableType,
 		PatternNode node, String property )
 	{
 		this.variableType = variableType;
-		this.variable = variable;
+		this.variableName = variableName;
 		this.node = node;
 		this.property = property;
 	}
@@ -26,10 +26,10 @@ public class NeoVariable implements Variable
 		return this.variableType;
 	}
 	
-	Variable getVariable()
-	{
-		return this.variable;
-	}
+//	Variable getVariable()
+//	{
+//		return this.variable;
+//	}
 	
 	String getProperty()
 	{
@@ -43,6 +43,6 @@ public class NeoVariable implements Variable
 
 	public String getName()
 	{
-		return this.variable.getName();
+		return this.variableName;
 	}
 }

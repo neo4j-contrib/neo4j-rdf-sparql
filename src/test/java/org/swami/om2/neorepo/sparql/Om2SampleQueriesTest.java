@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import name.levering.ryan.sparql.common.RdfBindingSet;
 import name.levering.ryan.sparql.common.RdfGraph;
 import name.levering.ryan.sparql.model.ConstructQuery;
 import name.levering.ryan.sparql.model.Query;
 import name.levering.ryan.sparql.model.SelectQuery;
+
 import org.neo4j.neometa.structure.DatatypeClassRange;
 import org.neo4j.neometa.structure.MetaStructure;
 import org.neo4j.neometa.structure.MetaStructureClass;
@@ -26,7 +28,6 @@ import org.neo4j.rdf.store.RdfStore;
 import org.neo4j.rdf.store.RdfStoreImpl;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 import org.neo4j.rdf.store.representation.standard.DenseRepresentationStrategy;
-import org.swami.om2.neorepo.sparql.MetaModelProxy.OwlPropertyType;
 
 public class Om2SampleQueriesTest extends SparqlTestCase
 {

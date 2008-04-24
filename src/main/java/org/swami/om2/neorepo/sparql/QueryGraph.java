@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import name.levering.ryan.sparql.common.QueryException;
 import name.levering.ryan.sparql.model.GroupConstraint;
@@ -25,12 +24,9 @@ import org.neo4j.rdf.model.Value;
 import org.neo4j.rdf.model.Wildcard;
 import org.neo4j.rdf.model.WildcardEnabledStatement;
 import org.neo4j.rdf.store.representation.AbstractNode;
-import org.neo4j.rdf.store.representation.AbstractRelationship;
 import org.neo4j.rdf.store.representation.AbstractRepresentation;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 import org.neo4j.util.matching.PatternNode;
-import org.neo4j.util.matching.PatternUtil;
-import org.swami.om2.neorepo.sparql.NeoVariable.VariableType;
 
 public class QueryGraph
 {
@@ -38,9 +34,11 @@ public class QueryGraph
 	private Map<String, ASTVar> astVariables = new HashMap<String, ASTVar>();
 	private Map<AbstractNode, PatternNode> graph =
 		new HashMap<AbstractNode, PatternNode>();
-	private List<QueryGraph> optionalGraphs = new LinkedList<QueryGraph>();
+	private List<Map<AbstractNode, PatternNode>> optionalGraphs =
+		new LinkedList<Map<AbstractNode, PatternNode>>();
 	private MetaModelProxy metaModel;
 	private RepresentationStrategy representationStrategy;
+	private PatternGraphBuilder graphBuilder;
 
 	QueryGraph( RepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel, List<NeoVariable> variableList )
@@ -48,6 +46,7 @@ public class QueryGraph
 		this.variableList = variableList;
 		this.metaModel = metaModel;
 		this.representationStrategy = representationStrategy;
+		this.graphBuilder = new PatternGraphBuilder( representationStrategy );
 	}
 
 	PatternNodeAndNodePair getStartNode()
@@ -77,22 +76,26 @@ public class QueryGraph
 		Collection<PatternNode> optionalStartNodes =
 			new ArrayList<PatternNode>();
 		
-		for ( QueryGraph optionalGraph : this.optionalGraphs )
+		for ( Map<AbstractNode, PatternNode> optionalGraph :
+			this.optionalGraphs )
 		{
-			optionalStartNodes.add( this.getOverLappingNode( optionalGraph ) );
+			optionalStartNodes.add(
+				this.getOverLappingNode( this.graph, optionalGraph ) );
 		}
 		return optionalStartNodes;
 	}
 
-	private PatternNode getOverLappingNode( QueryGraph optionalGraph )
+	private PatternNode getOverLappingNode(
+		Map<AbstractNode, PatternNode> firstGraph,
+		Map<AbstractNode, PatternNode> secondGraph )
 	{
-		for ( PatternNode node : optionalGraph.graph.values() )
+		for ( PatternNode node : firstGraph.values() )
 		{
-			for ( PatternNode mainNode : this.graph.values() )
+			for ( PatternNode mainNode : secondGraph.values() )
 			{
 				if ( node.getLabel().equals( mainNode.getLabel() ) )
 				{
-					return node;
+					return mainNode;
 				}
 			}
 		}
@@ -124,7 +127,7 @@ public class QueryGraph
 						this.metaModel, this.variableList );
 				optionalGraph.build( ( ( OptionalConstraint )
 					constraint ).getConstraint(), true );
-				this.optionalGraphs.add( optionalGraph );
+				this.optionalGraphs.add( optionalGraph.getGraph() );
 			}
 			else
 			{
@@ -135,74 +138,13 @@ public class QueryGraph
 		AbstractRepresentation representation =
 			this.representationStrategy.getAbstractRepresentation(
 				statements.toArray( new Statement[ statements.size() ] ) );
-		this.buildPatternGraph( representation, optional );
+		this.graph = this.graphBuilder.buildPatternGraph(
+			representation, this.variableList, optional );
 	}
 	
-	private void buildPatternGraph(
-		AbstractRepresentation representation, boolean optional )
+	private Map<AbstractNode, PatternNode> getGraph()
 	{
-		for ( AbstractNode node : representation.nodes() )
-		{
-			this.graph.put( node, this.createPatternNode( node ) );
-		}
-		
-		for ( AbstractRelationship relationship :
-			representation.relationships() )
-		{
-			AbstractNode startNode = relationship.getStartNode();
-			AbstractNode endNode = relationship.getEndNode();
-			final String name = relationship.getRelationshipTypeName();
-			this.graph.get( startNode ).createRelationshipTo(
-				this.graph.get( endNode ), new ARelationshipType( name ),
-				optional );
-		}
-	}
-	
-	private PatternNode createPatternNode( AbstractNode node )
-	{
-		PatternNode patternNode = null;
-		if ( node.isWildcard() )
-		{
-			Wildcard wildcard = node.getWildcardOrNull();
-			patternNode = new PatternNode( wildcard.getVariableName() );
-			this.addVariable(
-					this.astVariables.get( wildcard.getVariableName() ),
-					VariableType.URI, patternNode,
-					this.representationStrategy.getExecutor().
-					getNodeUriPropertyKey( node ) );
-		}
-		else
-		{
-			Uri uri = node.getUriOrNull();
-			patternNode = new PatternNode(
-				uri == null ? "" : uri.getUriAsString() );
-			if ( uri != null )
-			{
-				patternNode.addPropertyEqualConstraint(
-					this.representationStrategy.getExecutor().
-					getNodeUriPropertyKey( node ), uri.getUriAsString() );
-			}
-		}
-		
-		for ( Entry<String, Collection<Object>> entry :
-			node.properties().entrySet() )
-		{
-			for ( Object value : entry.getValue() )
-			{
-				if ( value instanceof Wildcard )
-				{
-					this.addVariable( this.astVariables.get(
-						( ( Wildcard ) value ).getVariableName() ),
-						VariableType.LITERAL, patternNode, entry.getKey() );
-				}
-				else
-				{
-					patternNode.addPropertyEqualConstraint(
-						entry.getKey(), value );
-				}
-			}
-		}
-		return patternNode;
+		return this.graph;
 	}
 	
 	private Statement constructStatement( TripleConstraint triple )
@@ -232,7 +174,7 @@ public class QueryGraph
 		Value value = null;
 		if ( expression instanceof ASTVar )
 		{
-			value = new Wildcard( expression.toString() );
+			value = new Wildcard( ( ( ASTVar ) expression ).getName() );
 		}
 		else
 		{
@@ -251,20 +193,6 @@ public class QueryGraph
 					expression.toString(), ( ASTVar ) expression );
 			}
 		}
-	}
-	
-	private void addVariable( ASTVar var, VariableType type,
-		PatternNode subjectNode, String property )
-	{
-		for ( NeoVariable variable : this.variableList )
-		{
-			if ( var.getName().equals( variable.getName() ) )
-			{
-				return;
-			}
-		}
-		this.variableList.add(
-			new NeoVariable( var, type, subjectNode, property ) );
 	}
 }
 

@@ -1,10 +1,12 @@
 package org.swami.om2.neorepo.sparql;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import name.levering.ryan.sparql.common.Variable;
 import name.levering.ryan.sparql.model.GroupConstraint;
 
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
@@ -28,6 +30,19 @@ public abstract class AbstractNeoQueryLogic
 	protected List<NeoVariable> getNeoVariables()
 	{
 		return this.variableList;
+	}
+
+	protected boolean variableExists( Collection<Variable> variables,
+		String variableName )
+	{
+		for ( Variable variable : variables )
+		{
+			if ( variableName.equals( variable.getName() ) )
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	protected Iterable<PatternMatch> performMatches( QueryGraph graph )
