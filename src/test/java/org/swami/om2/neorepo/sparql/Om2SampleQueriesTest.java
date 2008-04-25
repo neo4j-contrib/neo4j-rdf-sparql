@@ -22,7 +22,6 @@ import org.neo4j.neometa.structure.MetaStructureProperty;
 import org.neo4j.rdf.model.CompleteStatement;
 import org.neo4j.rdf.model.Literal;
 import org.neo4j.rdf.model.Resource;
-import org.neo4j.rdf.model.Statement;
 import org.neo4j.rdf.model.Uri;
 import org.neo4j.rdf.store.RdfStore;
 import org.neo4j.rdf.store.RdfStoreImpl;
@@ -131,7 +130,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		this.rdfStore =
 			new RdfStoreImpl( neo(), representationStrategy() );
 		
-		List<Statement> statements = new ArrayList<Statement>();
+		List<CompleteStatement> statements = new ArrayList<CompleteStatement>();
 		statements.add( this.createStatement(
 			"studentA", Predicates.TYPE, Types.STUDENT ) );
 		statements.add( this.createStatement(
@@ -235,13 +234,11 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		statements.add( this.createStatement(
 			"studentF", Predicates.OTHER, new Uri( "courseB" ) ) );
 
-		for ( Statement statement : statements )
-		{
-			this.rdfStore.addStatement( statement );
-		}
+		this.rdfStore.addStatements( statements.toArray(
+		    new CompleteStatement[] {} ) );
 	}
 	
-	private Statement createStatement(
+	private CompleteStatement createStatement(
 		String subjectString, String predicateString, String objectString )
 	{
 		Resource subject = new Uri( subjectString );
@@ -251,7 +248,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		return new CompleteStatement( subject, predicate, object );
 	}
 
-	private Statement createStatement(
+	private CompleteStatement createStatement(
 		String subjectString, String predicateString, Uri objectUri )
 	{
 		Resource subject = new Uri( subjectString );

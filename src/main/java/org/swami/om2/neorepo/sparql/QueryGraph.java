@@ -22,7 +22,7 @@ import org.neo4j.rdf.model.Statement;
 import org.neo4j.rdf.model.Uri;
 import org.neo4j.rdf.model.Value;
 import org.neo4j.rdf.model.Wildcard;
-import org.neo4j.rdf.model.WildcardEnabledStatement;
+import org.neo4j.rdf.model.WildcardStatement;
 import org.neo4j.rdf.store.representation.AbstractNode;
 import org.neo4j.rdf.store.representation.AbstractRepresentation;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
@@ -166,7 +166,7 @@ public class QueryGraph
 			object = this.createUriOrWildcard( triple.getObjectExpression() );
 		}
 		
-		return new WildcardEnabledStatement( subject, predicate, object );
+		return new WildcardStatement( subject, predicate, object );
 	}
 	
 	private Value createUriOrWildcard( ExpressionLogic expression )
