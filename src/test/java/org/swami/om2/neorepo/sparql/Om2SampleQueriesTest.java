@@ -25,8 +25,11 @@ import org.neo4j.rdf.model.Resource;
 import org.neo4j.rdf.model.Uri;
 import org.neo4j.rdf.store.RdfStore;
 import org.neo4j.rdf.store.RdfStoreImpl;
+import org.neo4j.rdf.store.representation.RepresentationExecutor;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
+import org.neo4j.rdf.store.representation.standard.AbstractUriBasedExecutor;
 import org.neo4j.rdf.store.representation.standard.DenseRepresentationStrategy;
+import org.neo4j.rdf.store.representation.standard.UriBasedExecutor;
 
 public class Om2SampleQueriesTest extends SparqlTestCase
 {
@@ -39,7 +42,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		String OTHER = "http://www.openmetadir.org/om2/prim-1.owl#other";
 		String STATE = "http://www.swami.se/om2/ladok-1.owl#state";
 	}
-	
+
 	interface Types
 	{
 		Uri STUDENT = new Uri(
@@ -53,7 +56,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		Uri RESPONSIBLE = new Uri(
 			"http://www.openmetadir.org/om2/prim-1.owl#Responsible" );
 	}
-	
+
 	private static Map<String, Integer> counts =
 		new HashMap<String, Integer>();
 	private RdfStore rdfStore;
@@ -67,23 +70,25 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		counts.put( LADOK_NAMESPACE + "Student", new Integer( 10 ) );
 		counts.put( LADOK_NAMESPACE + "CourseInstance", new Integer( 5 ) );
 	}
-	
+
 	public Om2SampleQueriesTest( String name )
 	{
 		super( name, new MetaModelMockUp(
 			metaStructure(), counts ), representationStrategy() );
 	}
-	
+
 	private static RepresentationStrategy representationStrategy()
 	{
 		if ( representationStrategy == null )
 		{
-			representationStrategy = new DenseRepresentationStrategy( neo(),
-				metaStructure() );
+		    RepresentationExecutor executor = new UriBasedExecutor( neo(),
+		        AbstractUriBasedExecutor.newIndex( neo() ), metaStructure() );
+			representationStrategy = new DenseRepresentationStrategy(
+			    executor, metaStructure() );
 		}
 		return representationStrategy;
 	}
-	
+
 	private static MetaStructure metaStructure()
 	{
 		if ( metaStructure == null )
@@ -126,10 +131,10 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	public void setUp()
 	{
 		super.setUp();
-		
+
 		this.rdfStore =
 			new RdfStoreImpl( neo(), representationStrategy() );
-		
+
 		List<CompleteStatement> statements = new ArrayList<CompleteStatement>();
 		statements.add( this.createStatement(
 			"studentA", Predicates.TYPE, Types.STUDENT ) );
@@ -143,7 +148,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"studentE", Predicates.TYPE, Types.STUDENT ) );
 		statements.add( this.createStatement(
 			"studentF", Predicates.TYPE, Types.STUDENT ) );
-		
+
 		statements.add( this.createStatement(
 			"personA", Predicates.TYPE, Types.PERSON ) );
 		statements.add( this.createStatement(
@@ -171,14 +176,14 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"courseD", Predicates.COURSE_ID, "TMHB21" ) );
 		statements.add( this.createStatement(
 			"courseE", Predicates.TYPE, Types.COURSE ) );
-		
+
 		statements.add( this.createStatement(
 			"departmentA", Predicates.TYPE, Types.DEPARTMENT ) );
 		statements.add( this.createStatement(
 			"departmentA", Predicates.NAME, "Psykologi" ) );
 		statements.add( this.createStatement(
 			"departmentB", Predicates.TYPE, Types.DEPARTMENT ) );
-		
+
 		statements.add( this.createStatement(
 			"responsibleA", Predicates.TYPE, Types.RESPONSIBLE ) );
 		statements.add( this.createStatement(
@@ -196,7 +201,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"responsibleB", Predicates.OTHER, new Uri( "courseB" ) ) );
 		statements.add( this.createStatement(
 			"responsibleB", Predicates.OTHER, new Uri( "courseC" ) ) );
-		
+
 		statements.add( this.createStatement(
 			"studentA", Predicates.ONE, new Uri( "personA" ) ) );
 		statements.add( this.createStatement(
@@ -209,7 +214,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"studentE", Predicates.ONE, new Uri( "personE" ) ) );
 		statements.add( this.createStatement(
 			"studentF", Predicates.ONE, new Uri( "personF" ) ) );
-		
+
 		statements.add( this.createStatement(
 			"studentA", Predicates.STATE, "registered" ) );
 		statements.add( this.createStatement(
@@ -237,14 +242,14 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		this.rdfStore.addStatements( statements.toArray(
 		    new CompleteStatement[] {} ) );
 	}
-	
+
 	private CompleteStatement createStatement(
 		String subjectString, String predicateString, String objectString )
 	{
 		Resource subject = new Uri( subjectString );
 		Uri predicate = new Uri( predicateString );
 		Literal object = new Literal( objectString );
-		
+
 		return new CompleteStatement( subject, predicate, object );
 	}
 
@@ -253,7 +258,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	{
 		Resource subject = new Uri( subjectString );
 		Uri predicate = new Uri( predicateString );
-		
+
 		return new CompleteStatement( subject, predicate, objectUri );
 	}
 
@@ -272,13 +277,13 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"?student ladok:state \"registered\" . " +
 			"?student prim:other <http://28040ht06> . " +
 			"<http://28040ht06> rdf:type ladok:CourseInstance . }" ) );
-			
+
 		RdfBindingSet result =
 			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
 
 		Map<String, Integer> variables =
 			this.createVariableMap( "student", "person" );
-		String[][] expectedResult = new String[][] { 
+		String[][] expectedResult = new String[][] {
 			{ "studentC", "personC" },
 			{ "studentA", "personA" } };
 		this.assertResult( result, variables, expectedResult );
@@ -300,10 +305,10 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"?student prim:other ?course . " +
 			"?course rdf:type ladok:CourseInstance . " +
 			"?course ladok:courseId \"KOSB15\" . } " ) );
-			
+
 		RdfBindingSet result =
 			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
-		
+
 		Map<String, Integer> variables =
 			this.createVariableMap( "student", "person", "course" );
 		String[][] expectedResult =
@@ -325,10 +330,10 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"?course rdf:type ladok:CourseInstance . " +
 			"?responsible prim:one ?department . " +
 			"?department rdf:type prim:Department . " +
-			"?department prim:name \"Psykologi\" } " ) );			
+			"?department prim:name \"Psykologi\" } " ) );
 		RdfBindingSet result =
 			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
-		
+
 		Map<String, Integer> variables = this.createVariableMap(
 			"responsible", "course", "department" );
 		String[][] expectedResult = new String[][] {
@@ -352,17 +357,17 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"?course ladok:courseId \"TMHB21\" . " +
 			"?responsible prim:one ?department . " +
 			"?department rdf:type prim:Department . " +
-			"?department prim:name ?name }" ) ); 
+			"?department prim:name ?name }" ) );
 		RdfBindingSet result =
 			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
-		
+
 		Map<String, Integer> variables = this.createVariableMap(
 			"responsible", "course", "department", "name" );
 		String[][] expectedResult = new String[][] {
 			{ "responsibleA", "courseD", "departmentA", "Psykologi" } };
 		this.assertResult( result, variables, expectedResult );
 	}
-	
+
 	public void testQuery5() throws Exception
 	{
 		// Which department is responsible for the non-existant course
@@ -379,13 +384,13 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"?course ladok:courseId \"TDDB56\" . " +
 			"?responsible prim:one ?department . " +
 			"?department rdf:type prim:Department . " +
-		"?department prim:name ?name }" ) ); 
+		"?department prim:name ?name }" ) );
 		RdfBindingSet result =
 			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
-		
+
 		this.assertResult( result, null, null );
 	}
-	
+
 	public void testQuery6() throws Exception
 	{
 		// Get all students
@@ -405,10 +410,10 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"?person rdf:type prim:Person } " +
 			"OPTIONAL { ?student ladok:state ?state } " +
 			"}" ) );
-			
+
 		RdfBindingSet result =
 			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
-		
+
 		Map<String, Integer> variables =
 			this.createVariableMap( "student", "person", "course", "state" );
 		String[][] expectedResult = new String[][] {
@@ -420,7 +425,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			{ "studentA", "personA", "courseE", "registered" },
 			{ "studentA", "personA", "http://28040ht06", "registered" },
 			};
-		
+
 		this.assertResult( result, variables, expectedResult );
 	}
 
@@ -432,14 +437,14 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"PREFIX prim: <http://www.openmetadir.org/om2/prim-1.owl#> " +
 			"PREFIX ladok: <http://www.swami.se/om2/ladok-1.owl#> " +
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-			"CONSTRUCT { ?student prim:one ?person . " + 
+			"CONSTRUCT { ?student prim:one ?person . " +
 			"?person prim:other ?student } " +
 			"WHERE { " +
 			"?student rdf:type ladok:Student . " +
 			"?student prim:one ?person . " +
 			"?person rdf:type prim:Person " +
 			"}" ) );
-			
+
 		RdfGraph result =
 			( ( ConstructQuery ) query ).execute( new NeoRdfSource() );
 		String[] expectedResult = new String[] {
@@ -456,7 +461,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		"(studentA, http://www.openmetadir.org/om2/prim-1.owl#one, personA)",
 		"(personA, http://www.openmetadir.org/om2/prim-1.owl#other, studentA)",
 		};
-		
+
 		this.assertResult( ( NeoRdfGraph ) result, expectedResult );
 	}
 }
