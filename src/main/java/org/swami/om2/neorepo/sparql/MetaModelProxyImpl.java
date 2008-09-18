@@ -10,8 +10,6 @@ import org.neo4j.neometa.structure.MetaStructure;
 import org.neo4j.neometa.structure.MetaStructureClass;
 import org.neo4j.rdf.store.representation.AbstractNode;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.NodeType;
-
 /**
  * An implementation of the {@link MetaModelProxy} interface which is used in
  * the SPARQL engine for neo.
