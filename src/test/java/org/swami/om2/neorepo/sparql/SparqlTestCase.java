@@ -19,6 +19,8 @@ import org.neo4j.api.core.Node;
 import org.neo4j.api.core.Relationship;
 import org.neo4j.api.core.Transaction;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
+import org.neo4j.util.index.IndexService;
+import org.neo4j.util.index.NeoIndexService;
 
 public abstract class SparqlTestCase extends TestCase
 {
@@ -31,7 +33,8 @@ public abstract class SparqlTestCase extends TestCase
 	final static String FOAF_NAMESPACE =
 		"http://xmlns.com/foaf/1.0/";
 	protected NeoSparqlEngine sparqlEngine;
-	private static NeoService neo = neo();
+	private static NeoService neo;
+	private static IndexService index;
 	private Transaction tx;
 	protected MetaModelMockUp metaModel;
 	private Set<Node> createdNodes;
@@ -56,16 +59,24 @@ public abstract class SparqlTestCase extends TestCase
 		if ( neo == null )
 		{
 			neo = new EmbeddedNeo( "var/test/neo" );
+			index = new NeoIndexService( neo );
 			Runtime.getRuntime().addShutdownHook( new Thread()
 			{
 				@Override
 				public void run()
 				{
+					index.shutdown();
 					neo.shutdown();
 				}
 			} );
 		}
 		return neo;
+	}
+	
+	protected static IndexService index()
+	{
+		neo();
+		return index;
 	}
 	
 	@Override

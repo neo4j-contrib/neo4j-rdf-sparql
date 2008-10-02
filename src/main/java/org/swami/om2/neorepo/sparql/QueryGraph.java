@@ -135,9 +135,13 @@ public class QueryGraph
 					"Operation not supported with NeoRdfSource." );
 			}
 		}
+//		AbstractRepresentation representation =
+//			this.representationStrategy.getAbstractRepresentation(
+//				statements.toArray( new Statement[ statements.size() ] ) );
+		// TODO Fix this later
 		AbstractRepresentation representation =
 			this.representationStrategy.getAbstractRepresentation(
-				statements.toArray( new Statement[ statements.size() ] ) );
+				statements.get( 0 ) );
 		this.graph = this.graphBuilder.buildPatternGraph(
 			representation, this.variableList, optional );
 	}
@@ -166,7 +170,8 @@ public class QueryGraph
 			object = this.createUriOrWildcard( triple.getObjectExpression() );
 		}
 		
-		return new WildcardStatement( subject, predicate, object );
+		return new WildcardStatement( subject, predicate, object,
+			new Wildcard( "context" ) );
 	}
 	
 	private Value createUriOrWildcard( ExpressionLogic expression )

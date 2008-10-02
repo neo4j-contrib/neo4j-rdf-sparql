@@ -20,6 +20,7 @@ import org.neo4j.neometa.structure.MetaStructureImpl;
 import org.neo4j.neometa.structure.MetaStructureNamespace;
 import org.neo4j.neometa.structure.MetaStructureProperty;
 import org.neo4j.rdf.model.CompleteStatement;
+import org.neo4j.rdf.model.Context;
 import org.neo4j.rdf.model.Literal;
 import org.neo4j.rdf.model.Resource;
 import org.neo4j.rdf.model.Uri;
@@ -27,11 +28,10 @@ import org.neo4j.rdf.store.RdfStore;
 import org.neo4j.rdf.store.RdfStoreImpl;
 import org.neo4j.rdf.store.representation.RepresentationExecutor;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
-import org.neo4j.rdf.store.representation.standard.AbstractUriBasedExecutor;
 import org.neo4j.rdf.store.representation.standard.DenseRepresentationStrategy;
 import org.neo4j.rdf.store.representation.standard.UriBasedExecutor;
 
-public class Om2SampleQueriesTest extends SparqlTestCase
+public abstract class Om2SampleQueriesTest extends SparqlTestCase
 {
 	interface Predicates
 	{
@@ -81,10 +81,10 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	{
 		if ( representationStrategy == null )
 		{
-		    RepresentationExecutor executor = new UriBasedExecutor( neo(),
-		        AbstractUriBasedExecutor.newIndex( neo() ), metaStructure() );
+			RepresentationExecutor executor = new UriBasedExecutor( neo(),
+				index(), metaStructure() );
 			representationStrategy = new DenseRepresentationStrategy(
-			    executor, metaStructure() );
+				executor, metaStructure() );
 		}
 		return representationStrategy;
 	}
@@ -250,7 +250,8 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		Uri predicate = new Uri( predicateString );
 		Literal object = new Literal( objectString );
 
-		return new CompleteStatement( subject, predicate, object );
+		return new CompleteStatement( subject, predicate, object,
+			Context.NULL );
 	}
 
 	private CompleteStatement createStatement(
@@ -259,7 +260,8 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		Resource subject = new Uri( subjectString );
 		Uri predicate = new Uri( predicateString );
 
-		return new CompleteStatement( subject, predicate, objectUri );
+		return new CompleteStatement( subject, predicate, objectUri,
+			Context.NULL );
 	}
 
 	public void testQuery1() throws Exception
