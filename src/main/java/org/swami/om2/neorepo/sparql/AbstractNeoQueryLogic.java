@@ -57,7 +57,7 @@ public abstract class AbstractNeoQueryLogic
 		for ( String type : types )
 		{
 			results.add( PatternMatcher.getMatcher().match( patternNode,
-				startNode.getNode(), graph.getOptionalGraphs() ) );
+				startNode.getNode(), null, graph.getOptionalGraphs() ) );
 		}
 		return new PatternMatchesWrapper( results );
 	}
