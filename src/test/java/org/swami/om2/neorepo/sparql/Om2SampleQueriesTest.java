@@ -25,7 +25,7 @@ import org.neo4j.rdf.model.Literal;
 import org.neo4j.rdf.model.Resource;
 import org.neo4j.rdf.model.Uri;
 import org.neo4j.rdf.store.RdfStore;
-import org.neo4j.rdf.store.RdfStoreImpl;
+import org.neo4j.rdf.store.VerboseQuadStore;
 import org.neo4j.rdf.store.representation.RepresentationExecutor;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 import org.neo4j.rdf.store.representation.standard.DenseRepresentationStrategy;
@@ -82,7 +82,7 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 		if ( representationStrategy == null )
 		{
 			RepresentationExecutor executor = new UriBasedExecutor( neo(),
-				index(), metaStructure() );
+				index(), metaStructure(), null );
 			representationStrategy = new DenseRepresentationStrategy(
 				executor, metaStructure() );
 		}
@@ -132,8 +132,7 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 	{
 		super.setUp();
 
-		this.rdfStore =
-			new RdfStoreImpl( neo(), representationStrategy() );
+		this.rdfStore = new VerboseQuadStore( neo(), index() );
 
 		List<CompleteStatement> statements = new ArrayList<CompleteStatement>();
 		statements.add( this.createStatement(

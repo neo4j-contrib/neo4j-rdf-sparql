@@ -3,7 +3,10 @@ package org.swami.om2.neorepo.sparql;
 import name.levering.ryan.sparql.common.QueryException;
 import name.levering.ryan.sparql.common.impl.SPARQLValueFactory;
 import name.levering.ryan.sparql.logic.BaseLogic;
+import name.levering.ryan.sparql.logic.DefaultEffectiveBooleanLogic;
+import name.levering.ryan.sparql.logic.DefaultValueConversionLogic;
 import name.levering.ryan.sparql.logic.function.ExternalFunctionFactory;
+import name.levering.ryan.sparql.logic.naive.DefaultFilterConstraintLogic;
 import name.levering.ryan.sparql.model.data.AskQueryData;
 import name.levering.ryan.sparql.model.data.CallExpressionData;
 import name.levering.ryan.sparql.model.data.ConstructQueryData;
@@ -23,6 +26,7 @@ import name.levering.ryan.sparql.model.logic.DescribeQueryLogic;
 import name.levering.ryan.sparql.model.logic.ExpressionLogic;
 import name.levering.ryan.sparql.model.logic.OrderExpressionLogic;
 import name.levering.ryan.sparql.model.logic.SelectQueryLogic;
+import name.levering.ryan.sparql.model.logic.ValueConversionLogic;
 
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 import org.openrdf.model.URI;
@@ -68,8 +72,11 @@ public class NeoLogic extends BaseLogic
 	public ConstraintLogic getFilterConstraintLogic( FilterConstraintData data,
 		SPARQLValueFactory valueFactory )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        ValueConversionLogic conversionLogic = new DefaultValueConversionLogic(
+            valueFactory );
+        return new DefaultFilterConstraintLogic( data,
+            new DefaultEffectiveBooleanLogic( conversionLogic ),
+                conversionLogic );
 	}
 
 	public ConstraintLogic getGraphConstraintLogic( GraphConstraintData data )

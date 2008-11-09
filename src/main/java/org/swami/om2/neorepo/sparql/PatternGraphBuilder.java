@@ -7,12 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.neo4j.api.core.RelationshipType;
 import org.neo4j.rdf.model.Uri;
 import org.neo4j.rdf.model.Wildcard;
 import org.neo4j.rdf.store.representation.AbstractNode;
 import org.neo4j.rdf.store.representation.AbstractRelationship;
 import org.neo4j.rdf.store.representation.AbstractRepresentation;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
+import org.neo4j.util.matching.PatternGroup;
 import org.neo4j.util.matching.PatternNode;
 import org.swami.om2.neorepo.sparql.NeoVariable.VariableType;
 
@@ -29,20 +31,21 @@ public class PatternGraphBuilder
 	}
 	
 	public Map<AbstractNode, PatternNode> buildPatternGraph(
-		AbstractRepresentation representation,
+		AbstractRepresentation representation, PatternGroup group,
 		List<NeoVariable> variableMapping )
 	{
-		return buildPatternGraph( representation, variableMapping, false );
+		return buildPatternGraph( representation, group,
+		    variableMapping, false );
 	}
 	
 	public Map<AbstractNode, PatternNode> buildPatternGraph(
-		AbstractRepresentation representation,
+		AbstractRepresentation representation, PatternGroup group,
 		List<NeoVariable> variableMapping, boolean optional )
 	{
 		this.variableMapping = variableMapping;
 		for ( AbstractNode node : representation.nodes() )
 		{
-			this.graph.put( node, this.createPatternNode( node ) );
+			this.graph.put( node, this.createPatternNode( node, group ) );
 		}
 		
 		for ( AbstractRelationship relationship :
@@ -51,9 +54,17 @@ public class PatternGraphBuilder
 			AbstractNode startNode = relationship.getStartNode();
 			AbstractNode endNode = relationship.getEndNode();
 			final String name = relationship.getRelationshipTypeName();
+			
+			RelationshipType relType = new RelationshipType()
+			{
+                public String name()
+                {
+                    return name;
+                }
+			};
+			
 			this.graph.get( startNode ).createRelationshipTo(
-				this.graph.get( endNode ), new ARelationshipType( name ),
-				optional );
+				this.graph.get( endNode ), relType, optional );
 		}
 		
 		return this.graph;
@@ -64,13 +75,14 @@ public class PatternGraphBuilder
 		return this.variableMapping;
 	}
 	
-	private PatternNode createPatternNode( AbstractNode node )
+	private PatternNode createPatternNode( AbstractNode node,
+	    PatternGroup group )
 	{
 		PatternNode patternNode = null;
 		if ( node.isWildcard() )
 		{
 			Wildcard wildcard = node.getWildcardOrNull();
-			patternNode = new PatternNode( wildcard.getVariableName() );
+			patternNode = new PatternNode( group, wildcard.getVariableName() );
 			this.addVariable( wildcard.getVariableName(),
 				VariableType.URI, patternNode,
 				this.representationStrategy.getExecutor().
@@ -79,7 +91,7 @@ public class PatternGraphBuilder
 		else
 		{
 			Uri uri = node.getUriOrNull();
-			patternNode = new PatternNode(
+			patternNode = new PatternNode( group,
 				uri == null ? "" : uri.getUriAsString() );
 			if ( uri != null )
 			{

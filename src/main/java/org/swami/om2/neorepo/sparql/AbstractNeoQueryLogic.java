@@ -2,9 +2,11 @@ package org.swami.om2.neorepo.sparql;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import name.levering.ryan.sparql.common.Variable;
 import name.levering.ryan.sparql.model.GroupConstraint;
@@ -32,6 +34,16 @@ public abstract class AbstractNeoQueryLogic
 		return this.variableList;
 	}
 
+	private Map<String, PatternNode> getObjectVariables()
+	{
+	    Map<String, PatternNode> map = new HashMap<String, PatternNode>();
+	    for ( NeoVariable variable : this.variableList )
+	    {
+	        map.put( variable.getName(), variable.getNode() );
+	    }
+	    return map;
+   }
+	
 	protected boolean variableExists( Collection<Variable> variables,
 		String variableName )
 	{
@@ -57,7 +69,8 @@ public abstract class AbstractNeoQueryLogic
 		for ( String type : types )
 		{
 			results.add( PatternMatcher.getMatcher().match( patternNode,
-				startNode.getNode(), null, graph.getOptionalGraphs() ) );
+				startNode.getNode(), getObjectVariables(),
+				graph.getOptionalGraphs() ) );
 		}
 		return new PatternMatchesWrapper( results );
 	}

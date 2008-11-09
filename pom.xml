@@ -70,17 +70,17 @@
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>graph-matching</artifactId>
-			<version>0.3-SNAPSHOT</version>
+			<version>0.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo-rdf</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<version>0.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>index-util</artifactId>	
-			<version>0.3-SNAPSHOT</version>
+			<version>0.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -91,7 +91,7 @@
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo</artifactId>
-			<version>1.0-rc1-SNAPSHOT</version>
+			<version>1.0-b8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>external</groupId>
