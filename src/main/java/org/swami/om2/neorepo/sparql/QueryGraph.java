@@ -3,9 +3,12 @@ package org.swami.om2.neorepo.sparql;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import name.levering.ryan.sparql.common.QueryException;
 import name.levering.ryan.sparql.model.FilterConstraint;
@@ -26,24 +29,39 @@ import name.levering.ryan.sparql.parser.model.ASTVar;
 import name.levering.ryan.sparql.parser.model.BinaryExpressionNode;
 
 import org.neo4j.api.core.Node;
+import org.neo4j.api.core.RelationshipType;
 import org.neo4j.rdf.model.Literal;
 import org.neo4j.rdf.model.Statement;
 import org.neo4j.rdf.model.Uri;
 import org.neo4j.rdf.model.Value;
 import org.neo4j.rdf.model.Wildcard;
 import org.neo4j.rdf.model.WildcardStatement;
+import org.neo4j.rdf.store.RdfStore;
 import org.neo4j.rdf.store.representation.AbstractNode;
+import org.neo4j.rdf.store.representation.AbstractRelationship;
 import org.neo4j.rdf.store.representation.AbstractRepresentation;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 import org.neo4j.util.matching.PatternGroup;
+import org.neo4j.util.matching.PatternMatcher;
 import org.neo4j.util.matching.PatternNode;
+import org.neo4j.util.matching.PatternRelationship;
 import org.neo4j.util.matching.filter.CompareExpression;
 import org.neo4j.util.matching.filter.FilterBinaryNode;
 import org.neo4j.util.matching.filter.FilterExpression;
 import org.neo4j.util.matching.filter.RegexPattern;
 import org.openrdf.model.URI;
 import org.openrdf.model.datatypes.XMLDatatypeUtil;
+import org.swami.om2.neorepo.sparql.NeoVariable.VariableType;
 
+/**
+ * Builds a pattern with {@link PatternNode} and {@link PatternRelationship}
+ * from a SPARQL query, via an {@link AbstractRepresentation} which is retreived
+ * from the supplied {@link RepresentationStrategy}. Which in turn belongs
+ * to the {@link RdfStore} the query is queried upon.
+ * 
+ * The resulting pattern can be used to find matches by a
+ * {@link PatternMatcher}.
+ */
 public class QueryGraph
 {
 	private List<NeoVariable> variableList;
@@ -55,6 +73,7 @@ public class QueryGraph
 	private MetaModelProxy metaModel;
 	private RepresentationStrategy representationStrategy;
 	private PatternGraphBuilder graphBuilder;
+    private Set<AbstractNode> possibleStartNodes = new HashSet<AbstractNode>();
 
 	QueryGraph( RepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel, List<NeoVariable> variableList )
@@ -62,7 +81,7 @@ public class QueryGraph
 		this.variableList = variableList;
 		this.metaModel = metaModel;
 		this.representationStrategy = representationStrategy;
-		this.graphBuilder = new PatternGraphBuilder( representationStrategy );
+		this.graphBuilder = new PatternGraphBuilder();
 	}
 
 	PatternNodeAndNodePair getStartNode()
@@ -71,7 +90,7 @@ public class QueryGraph
 		PatternNode startNode = null;
 		Node node = null;
 		
-		for ( AbstractNode abstractNode : this.graph.keySet() )
+		for ( AbstractNode abstractNode : this.possibleStartNodes )
 		{
 			int count = this.metaModel.getCount( abstractNode );
 			
@@ -101,6 +120,12 @@ public class QueryGraph
 		return optionalStartNodes;
 	}
 
+	/**
+	 * @param firstGraph the first graph.
+	 * @param secondGraph the second graph.
+	 * @return the node which is the "link" between two graphs, f.ex.
+	 * the regular graph and and optional graph.
+	 */
 	private PatternNode getOverLappingNode(
 		Map<AbstractNode, PatternNode> firstGraph,
 		Map<AbstractNode, PatternNode> secondGraph )
@@ -163,6 +188,7 @@ public class QueryGraph
 		    representation = this.representationStrategy.
 		        getAbstractRepresentation( statement, representation );
 		}
+		
 		this.graph = this.graphBuilder.buildPatternGraph(
 			representation, group, this.variableList, optional );
 	}
@@ -328,5 +354,117 @@ public class QueryGraph
 					expression.toString(), ( ASTVar ) expression );
 			}
 		}
+	}
+
+	private class PatternGraphBuilder
+	{
+	    public Map<AbstractNode, PatternNode> buildPatternGraph(
+	        AbstractRepresentation representation, PatternGroup group,
+	        List<NeoVariable> variableMapping )
+	    {
+	        return buildPatternGraph( representation, group,
+	            variableMapping, false );
+	    }
+	    
+	    public Map<AbstractNode, PatternNode> buildPatternGraph(
+	        AbstractRepresentation representation, PatternGroup group,
+	        List<NeoVariable> variableMapping, boolean optional )
+	    {
+	        for ( AbstractNode node : representation.nodes() )
+	        {
+	            PatternNode patternNode = this.createPatternNode( node, group );
+	            graph.put( node, patternNode );
+	            
+	            // If this is an rdf:type node then it's a possible start node
+	            if ( node.getUriOrNull() != null )
+//	            if ( node.getUriOrNull() != null && metaModel.isTypeProperty(
+//	                node.getUriOrNull().getUriAsString() ) )
+	            {
+	                possibleStartNodes.add( node );
+	            }
+	        }
+	        
+	        for ( AbstractRelationship relationship :
+	            representation.relationships() )
+	        {
+	            AbstractNode startNode = relationship.getStartNode();
+	            AbstractNode endNode = relationship.getEndNode();
+	            final String name = relationship.getRelationshipTypeName();
+	            
+	            RelationshipType relType = new RelationshipType()
+	            {
+	                public String name()
+	                {
+	                    return name;
+	                }
+	            };
+	            
+	            graph.get( startNode ).createRelationshipTo(
+	                graph.get( endNode ), relType, optional );
+	        }
+	        
+	        return graph;
+	    }
+	    
+	    private PatternNode createPatternNode( AbstractNode node,
+	        PatternGroup group )
+	    {
+	        PatternNode patternNode = null;
+	        if ( node.isWildcard() )
+	        {
+	            Wildcard wildcard = node.getWildcardOrNull();
+	            patternNode =
+	                new PatternNode( group, wildcard.getVariableName() );
+	            this.addVariable( wildcard.getVariableName(), VariableType.URI,
+	                patternNode, representationStrategy.getExecutor().
+	                    getNodeUriPropertyKey( node ) );
+	        }
+	        else
+	        {
+	            Uri uri = node.getUriOrNull();
+	            patternNode = new PatternNode( group,
+	                uri == null ? "" : uri.getUriAsString() );
+	            if ( uri != null )
+	            {
+	                patternNode.addPropertyEqualConstraint(
+	                    representationStrategy.getExecutor().
+	                    getNodeUriPropertyKey( node ), uri.getUriAsString() );
+	            }
+	        }
+	        
+	        for ( Entry<String, Collection<Object>> entry :
+	            node.properties().entrySet() )
+	        {
+	            for ( Object value : entry.getValue() )
+	            {
+	                if ( value instanceof Wildcard )
+	                {
+	                    this.addVariable( ( ( Wildcard ) value ).
+	                        getVariableName(), VariableType.LITERAL,
+	                        patternNode, entry.getKey() );
+	                }
+	                else
+	                {
+	                    patternNode.addPropertyEqualConstraint(
+	                        entry.getKey(), value );
+	                }
+	            }
+	        }
+	        return patternNode;
+	    }
+	    
+	    private void addVariable( String variableName, VariableType type,
+	        PatternNode patternNode, String property )
+	    {
+	        for ( NeoVariable variable : variableList )
+	        {
+	            if ( variableName.equals( variable.getName() ) )
+	            {
+	                return;
+	            }
+	        }
+	        variableList.add(
+	            new NeoVariable( variableName, type, patternNode, property ) );
+	    }
 	}
 }

@@ -64,14 +64,14 @@ public abstract class AbstractNeoQueryLogic
 		PatternNodeAndNodePair startNode = graph.getStartNode();
 		PatternNode patternNode = startNode.getPatternNode();
 		// TODO: Fix inference
-		String[] types =
-			this.metaModel.getSubTypes( patternNode.getLabel(), true );
-		for ( String type : types )
-		{
+//		String[] types =
+//			this.metaModel.getSubTypes( patternNode.getLabel(), true );
+//		for ( String type : types )
+//		{
 			results.add( PatternMatcher.getMatcher().match( patternNode,
 				startNode.getNode(), getObjectVariables(),
 				graph.getOptionalGraphs() ) );
-		}
+//		}
 		return new PatternMatchesWrapper( results );
 	}
 	

@@ -2,6 +2,7 @@ package org.swami.om2.neorepo.sparql;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,13 +13,7 @@ import name.levering.ryan.sparql.model.ConstructQuery;
 import name.levering.ryan.sparql.model.Query;
 import name.levering.ryan.sparql.model.SelectQuery;
 
-import org.neo4j.neometa.structure.DatatypeClassRange;
 import org.neo4j.neometa.structure.MetaStructure;
-import org.neo4j.neometa.structure.MetaStructureClass;
-import org.neo4j.neometa.structure.MetaStructureClassRange;
-import org.neo4j.neometa.structure.MetaStructureImpl;
-import org.neo4j.neometa.structure.MetaStructureNamespace;
-import org.neo4j.neometa.structure.MetaStructureProperty;
 import org.neo4j.rdf.model.CompleteStatement;
 import org.neo4j.rdf.model.Context;
 import org.neo4j.rdf.model.Literal;
@@ -28,7 +23,7 @@ import org.neo4j.rdf.store.RdfStore;
 import org.neo4j.rdf.store.VerboseQuadStore;
 import org.neo4j.rdf.store.representation.RepresentationExecutor;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
-import org.neo4j.rdf.store.representation.standard.UriBasedExecutor;
+import org.neo4j.rdf.store.representation.standard.VerboseQuadExecutor;
 import org.neo4j.rdf.store.representation.standard.VerboseQuadStrategy;
 
 public abstract class Om2SampleQueriesTest extends SparqlTestCase
@@ -60,7 +55,6 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 	private static Map<String, Integer> counts =
 		new HashMap<String, Integer>();
 	private RdfStore rdfStore;
-	private static RepresentationStrategy representationStrategy;
 	private static MetaStructure metaStructure;
 	static
 	{
@@ -71,68 +65,71 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 		counts.put( LADOK_NAMESPACE + "CourseInstance", new Integer( 5 ) );
 	}
 
-	public Om2SampleQueriesTest( String name )
+	@Override
+	protected RepresentationStrategy instantiateRepresentationStrategy()
 	{
-		super( name, new MetaModelMockUp(
-			metaStructure(), counts ), representationStrategy() );
+		RepresentationExecutor executor = new VerboseQuadExecutor( neo(),
+			indexService(), metaStructure(), null );
+		return new VerboseQuadStrategy( executor, metaStructure() );
 	}
 
-	private static RepresentationStrategy representationStrategy()
-	{
-		if ( representationStrategy == null )
-		{
-			RepresentationExecutor executor = new UriBasedExecutor( neo(),
-				index(), metaStructure(), null );
-			representationStrategy = new VerboseQuadStrategy(
-				executor, metaStructure() );
-		}
-		return representationStrategy;
-	}
+    @Override
+    protected MetaModelMockUp instantiateMetaModelProxy()
+    {
+        return new MetaModelMockUp( metaStructure(), counts );
+    }
 
-	private static MetaStructure metaStructure()
+    @Override
+    protected NeoSparqlEngine instantiateSparqlEngine()
+    {
+        return new NeoSparqlEngine( representationStrategy(),
+            metaModelProxy() );
+    }
+    
+	private MetaStructure metaStructure()
 	{
-		if ( metaStructure == null )
-		{
-			metaStructure = new MetaStructureImpl( neo() );
-			MetaStructureNamespace namespace =
-				metaStructure.getGlobalNamespace();
-			MetaStructureClass studentClass = namespace.getMetaClass(
-				"http://www.swami.se/om2/ladok-1.owl#Student", true );
-			MetaStructureClass personClass = namespace.getMetaClass(
-				"http://www.openmetadir.org/om2/prim-1.owl#Person", true );
-			MetaStructureClass courseClass = namespace.getMetaClass(
-				"http://www.swami.se/om2/ladok-1.owl#CourseInstance", true );
-			MetaStructureClass departmentClass = namespace.getMetaClass(
-				"http://www.openmetadir.org/om2/prim-1.owl#Department", true );
-			MetaStructureClass responsibleClass = namespace.getMetaClass(
-				"http://www.openmetadir.org/om2/prim-1.owl#Responsible",
-				true );
-			MetaStructureProperty courseId = namespace.getMetaProperty(
-				"http://www.swami.se/om2/ladok-1.owl#courseId", true );
-			courseId.setRange( new DatatypeClassRange( String.class ) );
-			MetaStructureProperty name = namespace.getMetaProperty(
-				"http://www.openmetadir.org/om2/prim-1.owl#name", true );
-			name.setRange( new DatatypeClassRange( String.class ) );
-			MetaStructureProperty one = namespace.getMetaProperty(
-				"http://www.openmetadir.org/om2/prim-1.owl#one", true );
-			one.setRange( new MetaStructureClassRange( personClass ) );
-			MetaStructureProperty other = namespace.getMetaProperty(
-				"http://www.openmetadir.org/om2/prim-1.owl#other", true );
-			other.setRange( new MetaStructureClassRange( courseClass ) );
-			MetaStructureProperty state = namespace.getMetaProperty(
-				"http://www.swami.se/om2/ladok-1.owl#state", true );
-			state.setRange( new DatatypeClassRange( String.class ) );
-
-		}
+//		if ( metaStructure == null )
+//		{
+//			metaStructure = new MetaStructureImpl( neo() );
+//			MetaStructureNamespace namespace =
+//				metaStructure.getGlobalNamespace();
+//			MetaStructureClass studentClass = namespace.getMetaClass(
+//				"http://www.swami.se/om2/ladok-1.owl#Student", true );
+//			MetaStructureClass personClass = namespace.getMetaClass(
+//				"http://www.openmetadir.org/om2/prim-1.owl#Person", true );
+//			MetaStructureClass courseClass = namespace.getMetaClass(
+//				"http://www.swami.se/om2/ladok-1.owl#CourseInstance", true );
+//			MetaStructureClass departmentClass = namespace.getMetaClass(
+//				"http://www.openmetadir.org/om2/prim-1.owl#Department", true );
+//			MetaStructureClass responsibleClass = namespace.getMetaClass(
+//				"http://www.openmetadir.org/om2/prim-1.owl#Responsible",
+//				true );
+//			MetaStructureProperty courseId = namespace.getMetaProperty(
+//				"http://www.swami.se/om2/ladok-1.owl#courseId", true );
+//			courseId.setRange( new DatatypeClassRange( String.class ) );
+//			MetaStructureProperty name = namespace.getMetaProperty(
+//				"http://www.openmetadir.org/om2/prim-1.owl#name", true );
+//			name.setRange( new DatatypeClassRange( String.class ) );
+//			MetaStructureProperty one = namespace.getMetaProperty(
+//				"http://www.openmetadir.org/om2/prim-1.owl#one", true );
+//			one.setRange( new MetaStructureClassRange( personClass ) );
+//			MetaStructureProperty other = namespace.getMetaProperty(
+//				"http://www.openmetadir.org/om2/prim-1.owl#other", true );
+//			other.setRange( new MetaStructureClassRange( courseClass ) );
+//			MetaStructureProperty state = namespace.getMetaProperty(
+//				"http://www.swami.se/om2/ladok-1.owl#state", true );
+//			state.setRange( new DatatypeClassRange( String.class ) );
+//
+//		}
 		return metaStructure;
 	}
 
 	@Override
-	public void setUp()
+	public void setUp() throws Exception
 	{
 		super.setUp();
 
-		this.rdfStore = new VerboseQuadStore( neo(), index() );
+		this.rdfStore = new VerboseQuadStore( neo(), indexService() );
 
 		List<CompleteStatement> statements = new ArrayList<CompleteStatement>();
 		statements.add( this.createStatement(
@@ -266,7 +263,7 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 	public void testQuery1() throws Exception
 	{
 		// Which students are registered on the course 28040ht06?
-		Query query = this.sparqlEngine.parse( new StringReader(
+		Query query = sparqlEngine().parse( new StringReader(
 			"PREFIX prim: <http://www.openmetadir.org/om2/prim-1.owl#> " +
 			"PREFIX ladok: <http://www.swami.se/om2/ladok-1.owl#> " +
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
@@ -284,16 +281,16 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 
 		Map<String, Integer> variables =
 			this.createVariableMap( "student", "person" );
-		String[][] expectedResult = new String[][] {
-			{ "studentC", "personC" },
-			{ "studentA", "personA" } };
+		List<List<String>> expectedResult = new ArrayList<List<String>>();
+		expectedResult.add( Arrays.asList( "studentC", "personC" ) );
+		expectedResult.add( Arrays.asList( "studentA", "personA" ) );
 		this.assertResult( result, variables, expectedResult );
 	}
 
 	public void testQuery2() throws Exception
 	{
 		// Which students are accepted to the course KOSB15?
-		Query query = this.sparqlEngine.parse( new StringReader(
+		Query query = sparqlEngine().parse( new StringReader(
 			"PREFIX prim: <http://www.openmetadir.org/om2/prim-1.owl#> " +
 			"PREFIX ladok: <http://www.swami.se/om2/ladok-1.owl#> " +
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
@@ -312,15 +309,15 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 
 		Map<String, Integer> variables =
 			this.createVariableMap( "student", "person", "course" );
-		String[][] expectedResult =
-			new String[][] { { "studentF", "personF", "courseB" } };
+		List<List<String>> expectedResult = new ArrayList<List<String>>();
+		expectedResult.add( Arrays.asList( "studentF", "personF", "courseB" ) );
 		this.assertResult( result, variables, expectedResult );
 	}
 
 	public void testQuery3() throws Exception
 	{
 		// Which courses are the Psychology department responsible for?
-		Query query = this.sparqlEngine.parse( new StringReader(
+		Query query = sparqlEngine().parse( new StringReader(
 			"PREFIX prim: <http://www.openmetadir.org/om2/prim-1.owl#> " +
 			"PREFIX ladok: <http://www.swami.se/om2/ladok-1.owl#> " +
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
@@ -337,16 +334,18 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 
 		Map<String, Integer> variables = this.createVariableMap(
 			"responsible", "course", "department" );
-		String[][] expectedResult = new String[][] {
-			{ "responsibleA", "courseD", "departmentA" },
-			{ "responsibleA", "http://28040ht06", "departmentA" } };
+		List<List<String>> expectedResult = new ArrayList<List<String>>();
+		expectedResult.add( Arrays.asList(
+		    "responsibleA", "courseD", "departmentA" ) );
+		expectedResult.add( Arrays.asList(
+			"responsibleA", "http://28040ht06", "departmentA" ) );
 		this.assertResult( result, variables, expectedResult );
 	}
 
 	public void testQuery4() throws Exception
 	{
 		// Which department is responsible for the course TMHB21?
-		Query query = this.sparqlEngine.parse( new StringReader(
+		Query query = sparqlEngine().parse( new StringReader(
 			"PREFIX prim: <http://www.openmetadir.org/om2/prim-1.owl#> " +
 			"PREFIX ladok: <http://www.swami.se/om2/ladok-1.owl#> " +
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
@@ -364,8 +363,9 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 
 		Map<String, Integer> variables = this.createVariableMap(
 			"responsible", "course", "department", "name" );
-		String[][] expectedResult = new String[][] {
-			{ "responsibleA", "courseD", "departmentA", "Psykologi" } };
+		List<List<String>> expectedResult = new ArrayList<List<String>>();
+		expectedResult.add( Arrays.asList(
+		    "responsibleA", "courseD", "departmentA", "Psykologi" ) );
 		this.assertResult( result, variables, expectedResult );
 	}
 
@@ -373,7 +373,7 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 	{
 		// Which department is responsible for the non-existant course
 		// TDDB56?
-		Query query = this.sparqlEngine.parse( new StringReader(
+		Query query = sparqlEngine().parse( new StringReader(
 			"PREFIX prim: <http://www.openmetadir.org/om2/prim-1.owl#> " +
 			"PREFIX ladok: <http://www.swami.se/om2/ladok-1.owl#> " +
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
@@ -398,7 +398,7 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 		// Optional: The person the student is connected to
 		// Optional: Every course the student takes
 		// Optional: The student's registration status
-		Query query = this.sparqlEngine.parse( new StringReader(
+		Query query = sparqlEngine().parse( new StringReader(
 			"PREFIX prim: <http://www.openmetadir.org/om2/prim-1.owl#> " +
 			"PREFIX ladok: <http://www.swami.se/om2/ladok-1.owl#> " +
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
@@ -417,15 +417,21 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 
 		Map<String, Integer> variables =
 			this.createVariableMap( "student", "person", "course", "state" );
-		String[][] expectedResult = new String[][] {
-			{ "studentF", "personF", "courseB", "accepted" },
-			{ "studentE", "personE", "http://28040ht06", "accepted" },
-			{ "studentD", "personD", "courseB", "registered" },
-			{ "studentC", "personC", "http://28040ht06", "registered" },
-			{ "studentB", "personB", "", "" },
-			{ "studentA", "personA", "courseE", "registered" },
-			{ "studentA", "personA", "http://28040ht06", "registered" },
-			};
+		List<List<String>> expectedResult = new ArrayList<List<String>>();
+		expectedResult.add( Arrays.asList(
+		    "studentF", "personF", "courseB", "accepted" ) );
+		expectedResult.add( Arrays.asList(
+		    "studentE", "personE", "http://28040ht06", "accepted" ) );
+        expectedResult.add( Arrays.asList(
+			"studentD", "personD", "courseB", "registered" ) );
+	    expectedResult.add( Arrays.asList(
+			"studentC", "personC", "http://28040ht06", "registered" ) );
+	    expectedResult.add( Arrays.asList(
+			"studentB", "personB", "", "" ) );
+	    expectedResult.add( Arrays.asList(
+	        "studentA", "personA", "courseE", "registered" ) );
+	    expectedResult.add( Arrays.asList(
+			"studentA", "personA", "http://28040ht06", "registered" ) );
 
 		this.assertResult( result, variables, expectedResult );
 	}
@@ -434,7 +440,7 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 	{
 		// Construct a new rdf graph from all students/persons
 		// ( The new graph doesn't make sense, but hey... ;) )
-		Query query = this.sparqlEngine.parse( new StringReader(
+		Query query = sparqlEngine().parse( new StringReader(
 			"PREFIX prim: <http://www.openmetadir.org/om2/prim-1.owl#> " +
 			"PREFIX ladok: <http://www.swami.se/om2/ladok-1.owl#> " +
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
@@ -448,20 +454,31 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 
 		RdfGraph result =
 			( ( ConstructQuery ) query ).execute( new NeoRdfSource() );
-		String[] expectedResult = new String[] {
-		"(studentF, http://www.openmetadir.org/om2/prim-1.owl#one, personF)",
-		"(personF, http://www.openmetadir.org/om2/prim-1.owl#other, studentF)",
-		"(studentE, http://www.openmetadir.org/om2/prim-1.owl#one, personE)",
-		"(personE, http://www.openmetadir.org/om2/prim-1.owl#other, studentE)",
-		"(studentD, http://www.openmetadir.org/om2/prim-1.owl#one, personD)",
-		"(personD, http://www.openmetadir.org/om2/prim-1.owl#other, studentD)",
-		"(studentC, http://www.openmetadir.org/om2/prim-1.owl#one, personC)",
-		"(personC, http://www.openmetadir.org/om2/prim-1.owl#other, studentC)",
-		"(studentB, http://www.openmetadir.org/om2/prim-1.owl#one, personB)",
-		"(personB, http://www.openmetadir.org/om2/prim-1.owl#other, studentB)",
-		"(studentA, http://www.openmetadir.org/om2/prim-1.owl#one, personA)",
-		"(personA, http://www.openmetadir.org/om2/prim-1.owl#other, studentA)",
-		};
+		List<String> expectedResult = new ArrayList<String>();
+		expectedResult.add(
+	"(studentF, http://www.openmetadir.org/om2/prim-1.owl#one, personF)" );
+        expectedResult.add(
+	"(personF, http://www.openmetadir.org/om2/prim-1.owl#other, studentF)" );
+        expectedResult.add(
+	"(studentE, http://www.openmetadir.org/om2/prim-1.owl#one, personE)" );
+        expectedResult.add(
+	"(personE, http://www.openmetadir.org/om2/prim-1.owl#other, studentE)" );
+        expectedResult.add(
+	"(studentD, http://www.openmetadir.org/om2/prim-1.owl#one, personD)" );
+        expectedResult.add(
+	"(personD, http://www.openmetadir.org/om2/prim-1.owl#other, studentD)" );
+        expectedResult.add(
+	"(studentC, http://www.openmetadir.org/om2/prim-1.owl#one, personC)" );
+        expectedResult.add(
+	"(personC, http://www.openmetadir.org/om2/prim-1.owl#other, studentC)" );
+        expectedResult.add(
+	"(studentB, http://www.openmetadir.org/om2/prim-1.owl#one, personB)" );
+        expectedResult.add(
+	"(personB, http://www.openmetadir.org/om2/prim-1.owl#other, studentB)" );
+        expectedResult.add(
+	"(studentA, http://www.openmetadir.org/om2/prim-1.owl#one, personA)" );
+        expectedResult.add(
+	"(personA, http://www.openmetadir.org/om2/prim-1.owl#other, studentA)" );
 
 		this.assertResult( ( NeoRdfGraph ) result, expectedResult );
 	}

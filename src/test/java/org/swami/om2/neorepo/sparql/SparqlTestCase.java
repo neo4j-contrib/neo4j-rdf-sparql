@@ -7,22 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import name.levering.ryan.sparql.common.LenientStatement;
 import name.levering.ryan.sparql.common.RdfBindingRow;
 import name.levering.ryan.sparql.common.RdfBindingSet;
 import name.levering.ryan.sparql.common.Variable;
 
-import org.neo4j.api.core.EmbeddedNeo;
-import org.neo4j.api.core.NeoService;
 import org.neo4j.api.core.Node;
 import org.neo4j.api.core.Relationship;
-import org.neo4j.api.core.Transaction;
+import org.neo4j.api.core.RelationshipType;
+import org.neo4j.rdf.store.representation.AbstractNode;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
-import org.neo4j.util.index.IndexService;
-import org.neo4j.util.index.NeoIndexService;
+import org.swami.om2.neorepo.NeoWithIndexTestCase;
 
-public abstract class SparqlTestCase extends TestCase
+public abstract class SparqlTestCase extends NeoWithIndexTestCase
 {
 	final static String RDF_NAMESPACE =
 		"http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -32,61 +29,52 @@ public abstract class SparqlTestCase extends TestCase
 		"http://www.openmetadir.org/om2/prim-1.owl#";
 	final static String FOAF_NAMESPACE =
 		"http://xmlns.com/foaf/1.0/";
+	
+	private RepresentationStrategy representationStrategy;
 	protected NeoSparqlEngine sparqlEngine;
-	private static NeoService neo;
-	private static IndexService index;
-	private Transaction tx;
 	protected MetaModelMockUp metaModel;
-	private Set<Node> createdNodes;
-	
-	public SparqlTestCase( String name, MetaModelMockUp metaModel,
-		RepresentationStrategy strategy )
-	{
-		super( name );
-		this.createdNodes = new HashSet<Node>();
-		this.metaModel = metaModel;
-		this.sparqlEngine = new NeoSparqlEngine( strategy, metaModel );
-	}
-	
-	@Override
-	public void setUp()
-	{
-		tx = neo().beginTx();
-	}
-	
-	protected static NeoService neo()
-	{
-		if ( neo == null )
-		{
-			neo = new EmbeddedNeo( "var/test/neo" );
-			index = new NeoIndexService( neo );
-			Runtime.getRuntime().addShutdownHook( new Thread()
-			{
-				@Override
-				public void run()
-				{
-					index.shutdown();
-					neo.shutdown();
-				}
-			} );
-		}
-		return neo;
-	}
-	
-	protected static IndexService index()
-	{
-		neo();
-		return index;
-	}
+	private Set<Node> createdNodes = new HashSet<Node>();
 	
 	@Override
 	public void tearDown() throws Exception
 	{
 		this.deleteAllNodes();
-		tx.success();
-		tx.finish();
 		super.tearDown();
 	}
+	
+	protected MetaModelMockUp metaModelProxy()
+	{
+	    if ( this.metaModel == null )
+	    {
+	        this.metaModel = instantiateMetaModelProxy();
+	    }
+	    return this.metaModel;
+	}
+	
+	protected abstract MetaModelMockUp instantiateMetaModelProxy();
+	
+	protected NeoSparqlEngine sparqlEngine()
+	{
+	    if ( this.sparqlEngine == null )
+	    {
+	        this.sparqlEngine = instantiateSparqlEngine();
+	    }
+	    return this.sparqlEngine;
+	}
+	
+	protected abstract NeoSparqlEngine instantiateSparqlEngine();
+	
+	protected RepresentationStrategy representationStrategy()
+	{
+	    if ( this.representationStrategy == null )
+	    {
+	        this.representationStrategy = instantiateRepresentationStrategy();
+	    }
+	    return this.representationStrategy;
+	}
+	
+	protected abstract RepresentationStrategy
+	    instantiateRepresentationStrategy();
 	
 	protected Node createNode( String name )
 	{
@@ -96,11 +84,17 @@ public abstract class SparqlTestCase extends TestCase
 	protected Node createNode( String name, Node referenceNode )
 	{
 		Node node = neo().createNode();
-		node.setProperty( this.metaModel.getAboutKey(), name );
+		node.setProperty( representationStrategy().getExecutor().
+		    getNodeUriPropertyKey( new AbstractNode( null ) ), name );
 		if ( referenceNode != null )
 		{
-			node.createRelationshipTo( referenceNode,
-				this.metaModel.getTypeRelationship() );
+			node.createRelationshipTo( referenceNode, new RelationshipType()
+			{
+                public String name()
+                {
+                    return RDF_NAMESPACE + "type";
+                }
+			} );
 		}
 		this.createdNodes.add( node );
 		return node;
@@ -109,65 +103,91 @@ public abstract class SparqlTestCase extends TestCase
 	protected Node createReferenceNode( String name, String uri )
 	{
 		Node referenceNode = this.createNode( name );
-		referenceNode.setProperty( this.metaModel.getNodeTypeNameKey(), uri );
-		this.metaModel.addClassNode( uri, referenceNode );
+		referenceNode.setProperty( representationStrategy().getExecutor().
+		    getNodeUriPropertyKey( new AbstractNode( null ) ), uri );
+		metaModelProxy().addClassNode( uri, referenceNode );
 		return referenceNode;
 	}
 	
-	protected void assertResult( NeoRdfGraph result, String[] expectedResult )
+	protected void assertResult( NeoRdfGraph result,
+	    List<String> expectedResult )
 	{
 		Iterator<LenientStatement> statements = result.iterator();
 		
 		assertTrue( ( expectedResult != null && statements.hasNext() ) ||
 			( expectedResult == null && !statements.hasNext() ) );
 		
-		int i = 0;
+		int matchesFound = 0;
 		for ( LenientStatement statement : result )
 		{
-			assertEquals( statement.toString(), expectedResult[ i ] );
-			i++;
+		    boolean match = false;
+		    for ( String oneExpectedResult : expectedResult )
+		    {
+		        if ( statement.toString().equals( oneExpectedResult ) )
+		        {
+		            match = true;
+		            break;
+		        }
+		    }
+            assertTrue( "Expected result not found " + statement, match );
+			matchesFound++;
 		}
 
 		if ( expectedResult != null )
 		{
 			assertTrue( "Wrong number of matches were found.",
-				i == expectedResult.length );
+				matchesFound == expectedResult.size() );
 		}
 	}
 	
 	protected void assertResult( RdfBindingSet result,
-		Map<String, Integer> variables, String[][] expectedResult )
+		Map<String, Integer> variables, List<List<String>> expectedResult )
 	{
 		Iterator<RdfBindingRow> iterator = result.iterator();
 		
 		assertTrue( ( expectedResult != null && iterator.hasNext() ) ||
 			( expectedResult == null && !iterator.hasNext() ) );
 		
-		int i = 0;
-		int j = 0;
+		int matchesFound = 0;
 		while ( iterator.hasNext() )
 		{
 			RdfBindingRow row = iterator.next();
-
-			for ( Variable variable : ( List<Variable> ) row.getVariables() )
+            boolean match = false;
+			for ( List<String> oneExpectedResult : expectedResult )
 			{
-				int column = variables.get( variable.getName() );
-				Object value = row.getValue( variable );
-				assertTrue( "Incorrect result.",
-					expectedResult[i][column].equals( value.toString() ) );
-				j++;
+			    match = true;
+                int numberOfBoundVariables = 0;
+    			for ( Variable variable :
+    			    ( List<Variable> ) row.getVariables() )
+    			{
+    				int column = variables.get( variable.getName() );
+    				Object value = row.getValue( variable ).toString();
+    				match = oneExpectedResult.get( column ).toString().equals(
+    				    value );
+    				if ( !match )
+    				{
+    				    break;
+    				}
+    				numberOfBoundVariables++;
+    			}
+    			if ( numberOfBoundVariables != oneExpectedResult.size() )
+    			{
+    			    match = false;
+    			}
+    			if ( match )
+    			{
+    			    break;
+    			}
 			}
-			
-			assertTrue( "Wrong number of variables were bound.",
-				j == expectedResult[i].length );
-			j = 0;
-			i++;
+
+			assertTrue( "Expected result for " + row + " not found", match );
+			matchesFound++;
 		}
 
 		if ( expectedResult != null )
 		{
 			assertTrue( "Wrong number of matches were found.",
-				i == expectedResult.length );
+				matchesFound == expectedResult.size() );
 		}
 	}
 	
