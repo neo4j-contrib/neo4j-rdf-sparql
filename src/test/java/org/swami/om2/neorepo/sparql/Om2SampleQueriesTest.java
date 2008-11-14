@@ -28,8 +28,8 @@ import org.neo4j.rdf.store.RdfStore;
 import org.neo4j.rdf.store.VerboseQuadStore;
 import org.neo4j.rdf.store.representation.RepresentationExecutor;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
-import org.neo4j.rdf.store.representation.standard.DenseRepresentationStrategy;
 import org.neo4j.rdf.store.representation.standard.UriBasedExecutor;
+import org.neo4j.rdf.store.representation.standard.VerboseQuadStrategy;
 
 public abstract class Om2SampleQueriesTest extends SparqlTestCase
 {
@@ -83,7 +83,7 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 		{
 			RepresentationExecutor executor = new UriBasedExecutor( neo(),
 				index(), metaStructure(), null );
-			representationStrategy = new DenseRepresentationStrategy(
+			representationStrategy = new VerboseQuadStrategy(
 				executor, metaStructure() );
 		}
 		return representationStrategy;

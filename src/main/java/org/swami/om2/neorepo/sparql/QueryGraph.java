@@ -157,16 +157,12 @@ public class QueryGraph
 			}
 		}
 		
-		// TODO Fix when we support making an AbstractRepresentation out of
-		// many statements.
-		AbstractRepresentation representation = this.representationStrategy.
-		    getAbstractRepresentation( statements.get( 0 ) );
-//		AbstractRepresentation representation = new AbstractRepresentation();
-//		for ( Statement statement : statements )
-//		{
-//		    representation = this.representationStrategy.
-//		        getAbstractRepresentation( statement, representation );
-//		}
+		AbstractRepresentation representation = new AbstractRepresentation();
+		for ( Statement statement : statements )
+		{
+		    representation = this.representationStrategy.
+		        getAbstractRepresentation( statement, representation );
+		}
 		this.graph = this.graphBuilder.buildPatternGraph(
 			representation, group, this.variableList, optional );
 	}
