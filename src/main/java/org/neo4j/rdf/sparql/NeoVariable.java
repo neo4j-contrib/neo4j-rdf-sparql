@@ -1,4 +1,4 @@
-package org.swami.om2.neorepo.sparql;
+package org.neo4j.rdf.sparql;
 
 import org.neo4j.util.matching.PatternNode;
 import name.levering.ryan.sparql.common.Variable;

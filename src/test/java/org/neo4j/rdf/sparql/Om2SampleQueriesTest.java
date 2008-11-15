@@ -1,4 +1,4 @@
-package org.swami.om2.neorepo.sparql;
+package org.neo4j.rdf.sparql;
 
 import java.io.StringReader;
 import java.util.ArrayList;

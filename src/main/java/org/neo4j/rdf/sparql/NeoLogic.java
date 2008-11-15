@@ -1,4 +1,4 @@
-package org.swami.om2.neorepo.sparql;
+package org.neo4j.rdf.sparql;
 
 import name.levering.ryan.sparql.common.QueryException;
 import name.levering.ryan.sparql.common.impl.SPARQLValueFactory;

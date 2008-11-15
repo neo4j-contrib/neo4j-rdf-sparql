@@ -1,4 +1,4 @@
-package org.swami.om2.neorepo;
+package org.neo4j.rdf.sparql;
 
 import org.neo4j.util.index.IndexService;
 import org.neo4j.util.index.NeoIndexService;

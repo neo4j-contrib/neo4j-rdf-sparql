@@ -1,4 +1,4 @@
-package org.swami.om2.neorepo.sparql;
+package org.neo4j.rdf.sparql;
 
 import java.util.Iterator;
 import name.levering.ryan.sparql.common.QueryException;

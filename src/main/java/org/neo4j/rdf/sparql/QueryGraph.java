@@ -1,4 +1,4 @@
-package org.swami.om2.neorepo.sparql;
+package org.neo4j.rdf.sparql;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +37,7 @@ import org.neo4j.rdf.model.Uri;
 import org.neo4j.rdf.model.Value;
 import org.neo4j.rdf.model.Wildcard;
 import org.neo4j.rdf.model.WildcardStatement;
+import org.neo4j.rdf.sparql.NeoVariable.VariableType;
 import org.neo4j.rdf.store.RdfStore;
 import org.neo4j.rdf.store.representation.AbstractNode;
 import org.neo4j.rdf.store.representation.AbstractRelationship;
@@ -52,7 +53,6 @@ import org.neo4j.util.matching.filter.FilterExpression;
 import org.neo4j.util.matching.filter.RegexPattern;
 import org.openrdf.model.URI;
 import org.openrdf.model.datatypes.XMLDatatypeUtil;
-import org.swami.om2.neorepo.sparql.NeoVariable.VariableType;
 
 /**
  * Builds a pattern with {@link PatternNode} and {@link PatternRelationship}

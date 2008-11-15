@@ -1,4 +1,4 @@
-package org.swami.om2.neorepo.sparql;
+package org.neo4j.rdf.sparql;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +17,6 @@ import org.neo4j.api.core.Relationship;
 import org.neo4j.api.core.RelationshipType;
 import org.neo4j.rdf.store.representation.AbstractNode;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
-import org.swami.om2.neorepo.NeoWithIndexTestCase;
 
 public abstract class SparqlTestCase extends NeoWithIndexTestCase
 {
