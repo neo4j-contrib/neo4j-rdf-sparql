@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import name.levering.ryan.sparql.common.QueryException;
 import name.levering.ryan.sparql.model.FilterConstraint;
@@ -64,6 +65,7 @@ import org.swami.om2.neorepo.sparql.NeoVariable.VariableType;
  */
 public class QueryGraph
 {
+    private AtomicInteger blankLabelCounter = new AtomicInteger();
 	private List<NeoVariable> variableList;
 	private Map<String, ASTVar> astVariables = new HashMap<String, ASTVar>();
 	private Map<AbstractNode, PatternNode> graph =
@@ -74,6 +76,14 @@ public class QueryGraph
 	private RepresentationStrategy representationStrategy;
 	private PatternGraphBuilder graphBuilder;
     private Set<AbstractNode> possibleStartNodes = new HashSet<AbstractNode>();
+    
+    QueryGraph( RepresentationStrategy representationStrategy,
+        MetaModelProxy metaModel, List<NeoVariable> variableList,
+        AtomicInteger blankLabelCounter )
+    {
+        this( representationStrategy, metaModel, variableList );
+        this.blankLabelCounter = blankLabelCounter;
+    }
 
 	QueryGraph( RepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel, List<NeoVariable> variableList )
@@ -154,6 +164,8 @@ public class QueryGraph
 	{
 	    PatternGroup group = new PatternGroup();
 		ArrayList<Statement> statements = new ArrayList<Statement>();
+		Collection<FilterConstraint> filters =
+		    new ArrayList<FilterConstraint>();
 		for ( Object constraint : groupConstraint.getConstraints() )
 		{
 			if ( constraint instanceof TripleConstraint )
@@ -165,15 +177,15 @@ public class QueryGraph
 			else if ( constraint instanceof OptionalConstraint )
 			{
 				QueryGraph optionalGraph =
-					new QueryGraph( this.representationStrategy,
-						this.metaModel, this.variableList );
+					new QueryGraph( this.representationStrategy, this.metaModel,
+					    this.variableList, this.blankLabelCounter );
 				optionalGraph.build( ( ( OptionalConstraint )
 					constraint ).getConstraint(), true );
 				this.optionalGraphs.add( optionalGraph.getGraph() );
 			}
 			else if ( constraint instanceof FilterConstraint )
 			{
-			    addFilter( ( FilterConstraint ) constraint, group, optional );
+			    filters.add( ( FilterConstraint ) constraint );
 			}
 			else
 			{
@@ -191,6 +203,12 @@ public class QueryGraph
 		
 		this.graph = this.graphBuilder.buildPatternGraph(
 			representation, group, this.variableList, optional );
+		
+		// Apply filters
+		for ( FilterConstraint filter : filters )
+		{
+		    addFilter( filter, group, optional );
+		}
 	}
 	
 	private void addFilter( FilterConstraint constraint, PatternGroup group,
@@ -422,8 +440,9 @@ public class QueryGraph
 	        else
 	        {
 	            Uri uri = node.getUriOrNull();
-	            patternNode = new PatternNode( group,
-	                uri == null ? "" : uri.getUriAsString() );
+	            patternNode = new PatternNode( group, uri == null ?
+	                ( "_blank_" + blankLabelCounter.incrementAndGet() ) :
+	                uri.getUriAsString() );
 	            if ( uri != null )
 	            {
 	                patternNode.addPropertyEqualConstraint(

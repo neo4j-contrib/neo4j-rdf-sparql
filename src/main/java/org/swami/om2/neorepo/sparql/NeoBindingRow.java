@@ -2,9 +2,11 @@ package org.swami.om2.neorepo.sparql;
 
 import java.util.LinkedList;
 import java.util.List;
+
 import name.levering.ryan.sparql.common.RdfBindingRow;
 import name.levering.ryan.sparql.common.RdfBindingSet;
 import name.levering.ryan.sparql.common.Variable;
+
 import org.neo4j.util.matching.PatternElement;
 import org.neo4j.util.matching.PatternMatch;
 import org.openrdf.model.Value;
@@ -36,8 +38,8 @@ public class NeoBindingRow implements RdfBindingRow
 				if ( element.getNode().hasProperty(
 					neoVariable.getProperty() ) )
 				{
-					return new NeoValue( element.getNode().getProperty(
-							neoVariable.getProperty() ) );
+				    return new NeoValue( element.getNode().getProperty(
+						neoVariable.getProperty() ) );
 				}
 				// Value was optional so just break and return ""
 				break;

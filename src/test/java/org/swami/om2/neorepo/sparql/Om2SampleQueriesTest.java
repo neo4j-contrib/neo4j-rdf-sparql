@@ -13,7 +13,13 @@ import name.levering.ryan.sparql.model.ConstructQuery;
 import name.levering.ryan.sparql.model.Query;
 import name.levering.ryan.sparql.model.SelectQuery;
 
+import org.neo4j.neometa.structure.DatatypeClassRange;
 import org.neo4j.neometa.structure.MetaStructure;
+import org.neo4j.neometa.structure.MetaStructureClass;
+import org.neo4j.neometa.structure.MetaStructureClassRange;
+import org.neo4j.neometa.structure.MetaStructureImpl;
+import org.neo4j.neometa.structure.MetaStructureNamespace;
+import org.neo4j.neometa.structure.MetaStructureProperty;
 import org.neo4j.rdf.model.CompleteStatement;
 import org.neo4j.rdf.model.Context;
 import org.neo4j.rdf.model.Literal;
@@ -26,13 +32,14 @@ import org.neo4j.rdf.store.representation.RepresentationStrategy;
 import org.neo4j.rdf.store.representation.standard.VerboseQuadExecutor;
 import org.neo4j.rdf.store.representation.standard.VerboseQuadStrategy;
 
-public abstract class Om2SampleQueriesTest extends SparqlTestCase
+public class Om2SampleQueriesTest extends SparqlTestCase
 {
 	interface Predicates
 	{
 		String TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 		String COURSE_ID = "http://www.swami.se/om2/ladok-1.owl#courseId";
 		String NAME = "http://www.openmetadir.org/om2/prim-1.owl#name";
+        String NICK = "http://www.openmetadir.org/om2/prim-1.owl#nick";
 		String ONE = "http://www.openmetadir.org/om2/prim-1.owl#one";
 		String OTHER = "http://www.openmetadir.org/om2/prim-1.owl#other";
 		String STATE = "http://www.swami.se/om2/ladok-1.owl#state";
@@ -88,39 +95,42 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
     
 	private MetaStructure metaStructure()
 	{
-//		if ( metaStructure == null )
-//		{
-//			metaStructure = new MetaStructureImpl( neo() );
-//			MetaStructureNamespace namespace =
-//				metaStructure.getGlobalNamespace();
-//			MetaStructureClass studentClass = namespace.getMetaClass(
-//				"http://www.swami.se/om2/ladok-1.owl#Student", true );
-//			MetaStructureClass personClass = namespace.getMetaClass(
-//				"http://www.openmetadir.org/om2/prim-1.owl#Person", true );
-//			MetaStructureClass courseClass = namespace.getMetaClass(
-//				"http://www.swami.se/om2/ladok-1.owl#CourseInstance", true );
-//			MetaStructureClass departmentClass = namespace.getMetaClass(
-//				"http://www.openmetadir.org/om2/prim-1.owl#Department", true );
-//			MetaStructureClass responsibleClass = namespace.getMetaClass(
-//				"http://www.openmetadir.org/om2/prim-1.owl#Responsible",
-//				true );
-//			MetaStructureProperty courseId = namespace.getMetaProperty(
-//				"http://www.swami.se/om2/ladok-1.owl#courseId", true );
-//			courseId.setRange( new DatatypeClassRange( String.class ) );
-//			MetaStructureProperty name = namespace.getMetaProperty(
-//				"http://www.openmetadir.org/om2/prim-1.owl#name", true );
-//			name.setRange( new DatatypeClassRange( String.class ) );
-//			MetaStructureProperty one = namespace.getMetaProperty(
-//				"http://www.openmetadir.org/om2/prim-1.owl#one", true );
-//			one.setRange( new MetaStructureClassRange( personClass ) );
-//			MetaStructureProperty other = namespace.getMetaProperty(
-//				"http://www.openmetadir.org/om2/prim-1.owl#other", true );
-//			other.setRange( new MetaStructureClassRange( courseClass ) );
-//			MetaStructureProperty state = namespace.getMetaProperty(
-//				"http://www.swami.se/om2/ladok-1.owl#state", true );
-//			state.setRange( new DatatypeClassRange( String.class ) );
-//
-//		}
+		if ( metaStructure == null )
+		{
+			metaStructure = new MetaStructureImpl( neo() );
+			MetaStructureNamespace namespace =
+				metaStructure.getGlobalNamespace();
+			MetaStructureClass studentClass = namespace.getMetaClass(
+				Types.STUDENT.getUriAsString(), true );
+			MetaStructureClass personClass = namespace.getMetaClass(
+				Types.PERSON.getUriAsString(), true );
+			MetaStructureClass courseClass = namespace.getMetaClass(
+				Types.COURSE.getUriAsString(), true );
+			MetaStructureClass departmentClass = namespace.getMetaClass(
+				Types.DEPARTMENT.getUriAsString(), true );
+			MetaStructureClass responsibleClass = namespace.getMetaClass(
+				Types.RESPONSIBLE.getUriAsString(), true );
+			
+			MetaStructureProperty courseId = namespace.getMetaProperty(
+				Predicates.COURSE_ID, true );
+			courseId.setRange( new DatatypeClassRange( String.class ) );
+			MetaStructureProperty name = namespace.getMetaProperty(
+				Predicates.NAME, true );
+			name.setRange( new DatatypeClassRange( String.class ) );
+			MetaStructureProperty nick = namespace.getMetaProperty(
+			    Predicates.NICK, true );
+			nick.setRange( new DatatypeClassRange( String.class ) );
+			MetaStructureProperty one = namespace.getMetaProperty(
+				Predicates.ONE, true );
+			one.setRange( new MetaStructureClassRange( personClass ) );
+			MetaStructureProperty other = namespace.getMetaProperty(
+				Predicates.OTHER, true );
+			other.setRange( new MetaStructureClassRange( courseClass ) );
+			MetaStructureProperty state = namespace.getMetaProperty(
+				Predicates.STATE, true );
+			state.setRange( new DatatypeClassRange( String.class ) );
+
+		}
 		return metaStructure;
 	}
 
@@ -129,7 +139,8 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 	{
 		super.setUp();
 
-		this.rdfStore = new VerboseQuadStore( neo(), indexService() );
+		this.rdfStore = new VerboseQuadStore( neo(), indexService(),
+		    metaStructure(), null );
 
 		List<CompleteStatement> statements = new ArrayList<CompleteStatement>();
 		statements.add( this.createStatement(
@@ -302,7 +313,9 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 			"?student ladok:state \"accepted\" . " +
 			"?student prim:other ?course . " +
 			"?course rdf:type ladok:CourseInstance . " +
-			"?course ladok:courseId \"KOSB15\" . } " ) );
+			"?course ladok:courseId ?course_id ." +
+			"FILTER( regex( ?course_id, \"B15$\" ) )" +
+			"} " ) );
 
 		RdfBindingSet result =
 			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
@@ -371,7 +384,7 @@ public abstract class Om2SampleQueriesTest extends SparqlTestCase
 
 	public void testQuery5() throws Exception
 	{
-		// Which department is responsible for the non-existant course
+		// Which department is responsible for the non-existing course
 		// TDDB56?
 		Query query = sparqlEngine().parse( new StringReader(
 			"PREFIX prim: <http://www.openmetadir.org/om2/prim-1.owl#> " +

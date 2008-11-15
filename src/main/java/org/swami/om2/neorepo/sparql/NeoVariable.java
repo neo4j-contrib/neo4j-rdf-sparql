@@ -45,4 +45,10 @@ public class NeoVariable implements Variable
 	{
 		return this.variableName;
 	}
+	
+	@Override
+	public String toString()
+	{
+	    return "NeoVariable[" + getName() + "]";
+	}
 }

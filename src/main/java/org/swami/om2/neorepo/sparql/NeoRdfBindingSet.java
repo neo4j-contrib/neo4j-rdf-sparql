@@ -57,7 +57,7 @@ public class NeoRdfBindingSet implements RdfBindingSet
 
 	public Iterator<NeoBindingRow> iterator()
 	{
-		return new NeoRdfBindingSetIterator( this, this.matches.iterator() );
+		return new NeoRdfBindingSetIterator();
 	}
 
 	public int size()
@@ -126,17 +126,9 @@ public class NeoRdfBindingSet implements RdfBindingSet
 			"Operation not supported with NeoRdfSource." );
 	}
 	
-	static class NeoRdfBindingSetIterator implements Iterator<NeoBindingRow>
+	class NeoRdfBindingSetIterator implements Iterator<NeoBindingRow>
 	{
-		private NeoRdfBindingSet bindingSet;
-		private Iterator<PatternMatch> iterator;
-		
-		NeoRdfBindingSetIterator( NeoRdfBindingSet bindingSet,
-			Iterator<PatternMatch> iterator )
-		{
-			this.bindingSet = bindingSet;
-			this.iterator = iterator;
-		}
+		private Iterator<PatternMatch> iterator = matches.iterator();
 		
 		public boolean hasNext()
 		{
@@ -145,7 +137,7 @@ public class NeoRdfBindingSet implements RdfBindingSet
 
 		public NeoBindingRow next()
 		{
-			return new NeoBindingRow( bindingSet, iterator.next() );
+			return new NeoBindingRow( NeoRdfBindingSet.this, iterator.next() );
 		}
 
 		public void remove()
