@@ -1,118 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project>
-	<parent>
-		<groupId>org.neo4j</groupId>
-		<artifactId>parent-pom</artifactId>
-		<version>4</version>
-		<relativePath>../../pom.xml</relativePath>
-	</parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.neo4j</groupId>
+    <artifactId>parent-pom</artifactId>
+    <version>4</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
 
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.neo4j</groupId>
-	<artifactId>sparql-engine-neo</artifactId>
-	<version>0.4-SNAPSHOT</version>
-	<name>Sparql-engine for neo.</name>
-	<description>A sparql-engine adapter for neo.</description>
-	<url>http://components.neo4j.org/${project.artifactId}/</url>
-	
-	<scm>
-		<connection>
-			scm:svn:https://svn.neo4j.org/components/${project.artifactId}/trunk/
-		</connection>
-		<url>https://trac.neo4j.org/browser/components/${project.artifactId}
-		</url>
-	</scm>
-	
-	<issueManagement>
-		<system>Trac</system>
-		<url>https://trac.neo4j.org/query?status=assigned&amp;status=new&amp;status=reopened&amp;component=${project.artifactId}</url>
-	</issueManagement>
-	
-	<licenses>
-		<license>
-			<name>GNU Affero General Public License, Version 3</name>
-			<url>https://svn.neo4j.org/components/${project.artifactId}/trunk/LICENSE.txt
-			</url>
-		</license>
-	</licenses>
-	
-	<developers>
-		<developer>
-			<id>henrik</id>
-			<name>Henrik Larsson</name>
-			<email>henrik [at] neotechnology.com</email>
-			<timezone>+1</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>mattias</id>
-			<name>Mattias Persson</name>
-			<email>mattias [at] neotechnology.com</email>
-			<timezone>+1</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-	</developers>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.neo4j</groupId>
+  <artifactId>sparql-engine-neo</artifactId>
+  <version>0.4-SNAPSHOT</version>
+  <name>Sparql-engine for neo.</name>
+  <description>A sparql-engine adapter for neo.</description>
+  <url>http://components.neo4j.org/${project.artifactId}/</url>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+  <scm>
+    <connection>
+            scm:svn:https://svn.neo4j.org/components/${project.artifactId}/trunk/
+        </connection>
+    <url>https://trac.neo4j.org/browser/components/${project.artifactId}
+        </url>
+  </scm>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>graph-matching</artifactId>
-			<version>0.5-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo-rdf</artifactId>
-			<version>0.4-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>index-util</artifactId>	
-			<version>0.6-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo</artifactId>
-			<version>1.0-b8-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>external</groupId>
-			<artifactId>sparql-engine</artifactId>
-			<version>0.8</version>
-		</dependency>
-		<dependency>
-			<groupId>external</groupId>
-			<artifactId>openrdf-model</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>external</groupId>
-			<artifactId>openrdf-util</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>external</groupId>
-			<artifactId>rio</artifactId>
-			<version>1.0</version>
-		</dependency>
-	</dependencies>
+  <licenses>
+    <license>
+      <name>GNU Affero General Public License, Version 3</name>
+      <url>https://svn.neo4j.org/components/${project.artifactId}/trunk/LICENSE.txt
+            </url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>henrik</id>
+      <name>Henrik Larsson</name>
+      <email>henrik [at] neotechnology.com</email>
+      <timezone>+1</timezone>
+      <roles>
+        <role>Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>mattias</id>
+      <name>Mattias Persson</name>
+      <email>mattias [at] neotechnology.com</email>
+      <timezone>+1</timezone>
+      <roles>
+        <role>Developer</role>
+      </roles>
+    </developer>
+  </developers>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>graph-matching</artifactId>
+      <version>0.5-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo-rdf</artifactId>
+      <version>0.4-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>index-util</artifactId>
+      <version>0.6-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo</artifactId>
+      <version>1.0-b8-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>external</groupId>
+      <artifactId>sparql-engine</artifactId>
+      <version>0.8</version>
+    </dependency>
+    <dependency>
+      <groupId>external</groupId>
+      <artifactId>openrdf-model</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>external</groupId>
+      <artifactId>openrdf-util</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>external</groupId>
+      <artifactId>rio</artifactId>
+      <version>1.0</version>
+    </dependency>
+  </dependencies>
 
 </project>
