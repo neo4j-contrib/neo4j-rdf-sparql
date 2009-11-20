@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.neo4j.api.core.Node;
-import org.neo4j.neometa.structure.MetaStructure;
+import org.neo4j.meta.model.MetaModel;
 import org.neo4j.rdf.store.representation.AbstractNode;
 
 public class MetaModelMockUp implements MetaModelProxy
@@ -13,22 +13,23 @@ public class MetaModelMockUp implements MetaModelProxy
 		new HashMap<String, Node>();
 //	private RelationshipType instanceOf;
 	private Map<String, Integer> counts;
-	private MetaStructure metaStructure;
+	private MetaModel metaModel;
 	
 	public MetaModelMockUp(
-		MetaStructure metaStructure, Map<String, Integer> counts )
+		MetaModel metaModel, Map<String, Integer> counts )
 	{
 		this.counts = counts;
-		this.metaStructure = metaStructure;
+		this.metaModel = metaModel;
 	}
 	
-	public MetaStructure getMetaStructure()
+	public MetaModel getMetaModel()
 	{
-		return this.metaStructure;
+		return this.metaModel;
 	}
 
 	public boolean isTypeProperty( String uri )
 	{
+//	    return RDF.TYPE.toString().equals( uri );
 		return "http://www.w3.org/1999/02/22-rdf-syntax-ns#type".equals( uri );
 	}
 	

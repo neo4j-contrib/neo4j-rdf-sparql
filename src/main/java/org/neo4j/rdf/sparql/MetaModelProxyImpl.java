@@ -1,7 +1,7 @@
 package org.neo4j.rdf.sparql;
 
-import org.neo4j.neometa.structure.MetaStructure;
-import org.neo4j.neometa.structure.MetaStructureClass;
+import org.neo4j.meta.model.MetaModel;
+import org.neo4j.meta.model.MetaModelClass;
 import org.neo4j.rdf.store.representation.AbstractNode;
 
 /**
@@ -10,9 +10,9 @@ import org.neo4j.rdf.store.representation.AbstractNode;
  */
 public class MetaModelProxyImpl implements MetaModelProxy
 {
-    private MetaStructure meta;
+    private MetaModel meta;
     
-    public MetaModelProxyImpl( MetaStructure meta )
+    public MetaModelProxyImpl( MetaModel meta )
     {
         this.meta = meta;
     }
@@ -49,7 +49,7 @@ public class MetaModelProxyImpl implements MetaModelProxy
 		if ( node.getUriOrNull() != null )
 		{
 			String uri = node.getUriOrNull().getUriAsString();
-		    MetaStructureClass cls =
+		    MetaModelClass cls =
 		        meta.getGlobalNamespace().getMetaClass(
 		        	node.getUriOrNull().getUriAsString(), false );
 	//	    if ( cls == null )
@@ -58,7 +58,7 @@ public class MetaModelProxyImpl implements MetaModelProxy
 	//	    }
 		    if ( cls == null )
 		    {
-		        throw new RuntimeException( "Not found ' " + uri + " '" );
+		        throw new RuntimeException( "Not found '" + uri + "'" );
 		    }
 		    count = cls.getInstances().size();
 		}

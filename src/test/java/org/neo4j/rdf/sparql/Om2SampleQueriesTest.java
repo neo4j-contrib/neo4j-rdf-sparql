@@ -13,13 +13,13 @@ import name.levering.ryan.sparql.model.ConstructQuery;
 import name.levering.ryan.sparql.model.Query;
 import name.levering.ryan.sparql.model.SelectQuery;
 
-import org.neo4j.neometa.structure.DatatypeClassRange;
-import org.neo4j.neometa.structure.MetaStructure;
-import org.neo4j.neometa.structure.MetaStructureClass;
-import org.neo4j.neometa.structure.MetaStructureClassRange;
-import org.neo4j.neometa.structure.MetaStructureImpl;
-import org.neo4j.neometa.structure.MetaStructureNamespace;
-import org.neo4j.neometa.structure.MetaStructureProperty;
+import org.neo4j.meta.model.ClassRange;
+import org.neo4j.meta.model.DatatypeClassRange;
+import org.neo4j.meta.model.MetaModel;
+import org.neo4j.meta.model.MetaModelClass;
+import org.neo4j.meta.model.MetaModelImpl;
+import org.neo4j.meta.model.MetaModelNamespace;
+import org.neo4j.meta.model.MetaModelProperty;
 import org.neo4j.rdf.model.CompleteStatement;
 import org.neo4j.rdf.model.Context;
 import org.neo4j.rdf.model.Literal;
@@ -62,7 +62,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	private static Map<String, Integer> counts =
 		new HashMap<String, Integer>();
 	private RdfStore rdfStore;
-	private static MetaStructure metaStructure;
+	private static MetaModel metaModel;
 	static
 	{
 		counts.put( PRIM_NAMESPACE + "Person", new Integer( 10 ) );
@@ -76,14 +76,14 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	protected RepresentationStrategy instantiateRepresentationStrategy()
 	{
 		RepresentationExecutor executor = new VerboseQuadExecutor( neo(),
-			indexService(), metaStructure(), null );
-		return new VerboseQuadStrategy( executor, metaStructure() );
+			indexService(), metaModel(), null );
+		return new VerboseQuadStrategy( executor, metaModel() );
 	}
 
     @Override
     protected MetaModelMockUp instantiateMetaModelProxy()
     {
-        return new MetaModelMockUp( metaStructure(), counts );
+        return new MetaModelMockUp( metaModel(), counts );
     }
 
     @Override
@@ -93,45 +93,45 @@ public class Om2SampleQueriesTest extends SparqlTestCase
             metaModelProxy() );
     }
     
-	private MetaStructure metaStructure()
+	private MetaModel metaModel()
 	{
-		if ( metaStructure == null )
+		if ( metaModel == null )
 		{
-			metaStructure = new MetaStructureImpl( neo() );
-			MetaStructureNamespace namespace =
-				metaStructure.getGlobalNamespace();
-			MetaStructureClass studentClass = namespace.getMetaClass(
+			metaModel = new MetaModelImpl( neo() );
+			MetaModelNamespace namespace =
+				metaModel.getGlobalNamespace();
+			MetaModelClass studentClass = namespace.getMetaClass(
 				Types.STUDENT.getUriAsString(), true );
-			MetaStructureClass personClass = namespace.getMetaClass(
+			MetaModelClass personClass = namespace.getMetaClass(
 				Types.PERSON.getUriAsString(), true );
-			MetaStructureClass courseClass = namespace.getMetaClass(
+			MetaModelClass courseClass = namespace.getMetaClass(
 				Types.COURSE.getUriAsString(), true );
-			MetaStructureClass departmentClass = namespace.getMetaClass(
+			MetaModelClass departmentClass = namespace.getMetaClass(
 				Types.DEPARTMENT.getUriAsString(), true );
-			MetaStructureClass responsibleClass = namespace.getMetaClass(
+			MetaModelClass responsibleClass = namespace.getMetaClass(
 				Types.RESPONSIBLE.getUriAsString(), true );
 			
-			MetaStructureProperty courseId = namespace.getMetaProperty(
+			MetaModelProperty courseId = namespace.getMetaProperty(
 				Predicates.COURSE_ID, true );
 			courseId.setRange( new DatatypeClassRange( String.class ) );
-			MetaStructureProperty name = namespace.getMetaProperty(
+			MetaModelProperty name = namespace.getMetaProperty(
 				Predicates.NAME, true );
 			name.setRange( new DatatypeClassRange( String.class ) );
-			MetaStructureProperty nick = namespace.getMetaProperty(
+			MetaModelProperty nick = namespace.getMetaProperty(
 			    Predicates.NICK, true );
 			nick.setRange( new DatatypeClassRange( String.class ) );
-			MetaStructureProperty one = namespace.getMetaProperty(
+			MetaModelProperty one = namespace.getMetaProperty(
 				Predicates.ONE, true );
-			one.setRange( new MetaStructureClassRange( personClass ) );
-			MetaStructureProperty other = namespace.getMetaProperty(
+			one.setRange( new ClassRange( personClass ) );
+			MetaModelProperty other = namespace.getMetaProperty(
 				Predicates.OTHER, true );
-			other.setRange( new MetaStructureClassRange( courseClass ) );
-			MetaStructureProperty state = namespace.getMetaProperty(
+			other.setRange( new ClassRange( courseClass ) );
+			MetaModelProperty state = namespace.getMetaProperty(
 				Predicates.STATE, true );
 			state.setRange( new DatatypeClassRange( String.class ) );
 
 		}
-		return metaStructure;
+		return metaModel;
 	}
 
 	@Override
@@ -140,7 +140,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		super.setUp();
 
 		this.rdfStore = new VerboseQuadStore( neo(), indexService(),
-		    metaStructure(), null );
+		    metaModel(), null );
 
 		List<CompleteStatement> statements = new ArrayList<CompleteStatement>();
 		statements.add( this.createStatement(

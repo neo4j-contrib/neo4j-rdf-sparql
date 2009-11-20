@@ -16,12 +16,6 @@ public interface MetaModelProxy
 	
 //	public String getNodeTypeNameKey();
 	
-	/**
-	 * @param subjectUri
-	 * @param predicateUri
-	 * @param objectUri is null for datatype types.
-	 * @return
-	 */
 //	public OwlProperty getOwlProperty(
 //		String subjectUri, String predicateUri, String objectUri );
 	

@@ -2,6 +2,7 @@ package org.neo4j.rdf.sparql;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.StringReader;
 
 import name.levering.ryan.sparql.logic.SPARQLQueryLogic;
 import name.levering.ryan.sparql.model.Query;
@@ -25,6 +26,12 @@ public class NeoSparqlEngine
 //	    }
 	    NEO_LOGIC = new NeoLogic( representationStrategy, metaModel );
 		SPARQLQueryLogic.getInstance().setLogicFactory( NEO_LOGIC );
+	}
+	
+	public Query parse( String query ) throws ParseException
+	{
+	    // Don't tell me we have to .close() a StringReader!?
+	    return parse( new StringReader( query ) );
 	}
 	
 	public Query parse( Reader queryReader ) throws ParseException
