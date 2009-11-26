@@ -63,15 +63,20 @@ public abstract class AbstractNeoQueryLogic
 			new ArrayList<Iterable<PatternMatch>>();
 		PatternNodeAndNodePair startNode = graph.getStartNode();
 		PatternNode patternNode = startNode.getPatternNode();
-		// TODO: Fix inference
+		
+		// For (not-very-optimized) inferencing
 //		String[] types =
 //			this.metaModel.getSubTypes( patternNode.getLabel(), true );
 //		for ( String type : types )
 //		{
-			results.add( PatternMatcher.getMatcher().match( patternNode,
-				startNode.getNode(), getObjectVariables(),
-				graph.getOptionalGraphs() ) );
+//			results.add( PatternMatcher.getMatcher().match( patternNode,
+//				startNode.getNode(), getObjectVariables(),
+//				graph.getOptionalGraphs() ) );
 //		}
+
+        results.add( PatternMatcher.getMatcher().match( patternNode,
+            startNode.getNode(), getObjectVariables(),
+            graph.getOptionalGraphs() ) );
 		return new PatternMatchesWrapper( results );
 	}
 	

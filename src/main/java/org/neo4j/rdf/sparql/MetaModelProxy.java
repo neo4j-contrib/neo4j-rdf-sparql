@@ -19,7 +19,7 @@ public interface MetaModelProxy
 //	public OwlProperty getOwlProperty(
 //		String subjectUri, String predicateUri, String objectUri );
 	
-	public boolean isTypeProperty( String uri );
+//	public boolean isTypeProperty( String uri );
 	
 	public int getCount( AbstractNode abstractNode );
 	

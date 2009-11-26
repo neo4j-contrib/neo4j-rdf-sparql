@@ -38,7 +38,6 @@ import org.neo4j.rdf.model.Value;
 import org.neo4j.rdf.model.Wildcard;
 import org.neo4j.rdf.model.WildcardStatement;
 import org.neo4j.rdf.sparql.NeoVariable.VariableType;
-import org.neo4j.rdf.store.RdfStore;
 import org.neo4j.rdf.store.representation.AbstractNode;
 import org.neo4j.rdf.store.representation.AbstractRelationship;
 import org.neo4j.rdf.store.representation.AbstractRepresentation;
@@ -55,12 +54,12 @@ import org.openrdf.model.URI;
 import org.openrdf.model.datatypes.XMLDatatypeUtil;
 
 /**
- * Builds a pattern with {@link PatternNode} and {@link PatternRelationship}
- * from a SPARQL query, via an {@link AbstractRepresentation} which is retreived
- * from the supplied {@link RepresentationStrategy}. Which in turn belongs
- * to the {@link RdfStore} the query is queried upon.
+ * Builds a pattern consisting of {@link PatternNode}s and
+ * {@link PatternRelationship}s based on a SPARQL query. It uses a
+ * {@link AbstractRepresentation} (retrieved from the supplied
+ * {@link RepresentationStrategy}) to figure out how to structure the pattern.
  * 
- * The resulting pattern can be used to find matches by a
+ * The resulting pattern can be used to find matches using a
  * {@link PatternMatcher}.
  */
 public class QueryGraph
@@ -72,7 +71,7 @@ public class QueryGraph
 		new HashMap<AbstractNode, PatternNode>();
 	private List<Map<AbstractNode, PatternNode>> optionalGraphs =
 		new LinkedList<Map<AbstractNode, PatternNode>>();
-	private MetaModelProxy metaModel;
+	private MetaModelProxy metaModelProxy;
 	private RepresentationStrategy representationStrategy;
 	private PatternGraphBuilder graphBuilder;
     private Set<AbstractNode> possibleStartNodes = new HashSet<AbstractNode>();
@@ -89,7 +88,7 @@ public class QueryGraph
 		MetaModelProxy metaModel, List<NeoVariable> variableList )
 	{
 		this.variableList = variableList;
-		this.metaModel = metaModel;
+		this.metaModelProxy = metaModel;
 		this.representationStrategy = representationStrategy;
 		this.graphBuilder = new PatternGraphBuilder();
 	}
@@ -102,7 +101,7 @@ public class QueryGraph
 		
 		for ( AbstractNode abstractNode : this.possibleStartNodes )
 		{
-			int count = this.metaModel.getCount( abstractNode );
+			int count = this.metaModelProxy.getCount( abstractNode );
 			
 			if ( count < lowestCount )	
 			{
@@ -177,8 +176,9 @@ public class QueryGraph
 			else if ( constraint instanceof OptionalConstraint )
 			{
 				QueryGraph optionalGraph =
-					new QueryGraph( this.representationStrategy, this.metaModel,
-					    this.variableList, this.blankLabelCounter );
+					new QueryGraph( this.representationStrategy,
+					    this.metaModelProxy, this.variableList,
+					    this.blankLabelCounter );
 				optionalGraph.build( ( ( OptionalConstraint )
 					constraint ).getConstraint(), true );
 				this.optionalGraphs.add( optionalGraph.getGraph() );
@@ -393,10 +393,7 @@ public class QueryGraph
 	            PatternNode patternNode = this.createPatternNode( node, group );
 	            graph.put( node, patternNode );
 	            
-	            // If this is an rdf:type node then it's a possible start node
 	            if ( node.getUriOrNull() != null )
-//	            if ( node.getUriOrNull() != null && metaModel.isTypeProperty(
-//	                node.getUriOrNull().getUriAsString() ) )
 	            {
 	                possibleStartNodes.add( node );
 	            }
