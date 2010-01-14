@@ -3,10 +3,12 @@ package org.neo4j.rdf.sparql;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import org.neo4j.util.matching.PatternMatch;
+
 import name.levering.ryan.sparql.common.QueryException;
 import name.levering.ryan.sparql.common.RdfBindingSet;
 import name.levering.ryan.sparql.common.RdfBindingSetVisitor;
+
+import org.neo4j.graphmatching.PatternMatch;
 
 public class NeoRdfBindingSet implements RdfBindingSet
 {

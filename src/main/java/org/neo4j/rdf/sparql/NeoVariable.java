@@ -1,7 +1,8 @@
 package org.neo4j.rdf.sparql;
 
-import org.neo4j.util.matching.PatternNode;
 import name.levering.ryan.sparql.common.Variable;
+
+import org.neo4j.graphmatching.PatternNode;
 
 public class NeoVariable implements Variable
 {

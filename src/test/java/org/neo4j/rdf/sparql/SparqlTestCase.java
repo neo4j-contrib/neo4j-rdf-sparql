@@ -12,9 +12,9 @@ import name.levering.ryan.sparql.common.RdfBindingRow;
 import name.levering.ryan.sparql.common.RdfBindingSet;
 import name.levering.ryan.sparql.common.Variable;
 
-import org.neo4j.api.core.Node;
-import org.neo4j.api.core.Relationship;
-import org.neo4j.api.core.RelationshipType;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.rdf.store.representation.AbstractNode;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 

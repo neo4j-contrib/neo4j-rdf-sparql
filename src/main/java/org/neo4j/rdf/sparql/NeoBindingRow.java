@@ -7,8 +7,8 @@ import name.levering.ryan.sparql.common.RdfBindingRow;
 import name.levering.ryan.sparql.common.RdfBindingSet;
 import name.levering.ryan.sparql.common.Variable;
 
-import org.neo4j.util.matching.PatternElement;
-import org.neo4j.util.matching.PatternMatch;
+import org.neo4j.graphmatching.PatternElement;
+import org.neo4j.graphmatching.PatternMatch;
 import org.openrdf.model.Value;
 
 public class NeoBindingRow implements RdfBindingRow

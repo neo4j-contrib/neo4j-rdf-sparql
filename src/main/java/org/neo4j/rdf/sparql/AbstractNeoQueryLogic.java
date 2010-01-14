@@ -11,10 +11,10 @@ import java.util.Map;
 import name.levering.ryan.sparql.common.Variable;
 import name.levering.ryan.sparql.model.GroupConstraint;
 
+import org.neo4j.graphmatching.PatternMatch;
+import org.neo4j.graphmatching.PatternMatcher;
+import org.neo4j.graphmatching.PatternNode;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
-import org.neo4j.util.matching.PatternMatch;
-import org.neo4j.util.matching.PatternMatcher;
-import org.neo4j.util.matching.PatternNode;
 
 public abstract class AbstractNeoQueryLogic
 {
