@@ -11,12 +11,12 @@ import org.neo4j.graphmatching.PatternElement;
 import org.neo4j.graphmatching.PatternMatch;
 import org.openrdf.model.Value;
 
-public class NeoBindingRow implements RdfBindingRow
+public class Neo4jBindingRow implements RdfBindingRow
 {
-	private NeoRdfBindingSet bindingSet;
+	private Neo4jRdfBindingSet bindingSet;
 	private PatternMatch match;
 	
-	NeoBindingRow( NeoRdfBindingSet bindingSet, PatternMatch match )
+	Neo4jBindingRow( Neo4jRdfBindingSet bindingSet, PatternMatch match )
 	{
 		this.bindingSet = bindingSet;
 		this.match = match;
@@ -29,56 +29,56 @@ public class NeoBindingRow implements RdfBindingRow
 
 	public Value getValue( Variable variable )
 	{
-		NeoVariable neoVariable = this.getNeoVariable( variable );
+		Neo4jVariable neo4jVariable = this.getNeo4jVariable( variable );
 		for ( PatternElement element : this.match.getElements() )
 		{
 			if ( element.getPatternNode().getLabel().equals(
-				neoVariable.getNode().getLabel() ) )
+				neo4jVariable.getNode().getLabel() ) )
 			{
 				if ( element.getNode().hasProperty(
-					neoVariable.getProperty() ) )
+					neo4jVariable.getProperty() ) )
 				{
-				    return new NeoValue( element.getNode().getProperty(
-						neoVariable.getProperty() ) );
+				    return new Neo4jValue( element.getNode().getProperty(
+						neo4jVariable.getProperty() ) );
 				}
 				// Value was optional so just break and return ""
 				break;
 			}
 		}
-		return new NeoValue( "" );
+		return new Neo4jValue( "" );
 	}
 
-	private NeoVariable getNeoVariable( Variable variable )
+	private Neo4jVariable getNeo4jVariable( Variable variable )
 	{
-		if ( variable instanceof NeoVariable )
+		if ( variable instanceof Neo4jVariable )
 		{
-			return ( NeoVariable ) variable;
+			return ( Neo4jVariable ) variable;
 		}
 		
-		for ( NeoVariable neoVariable : this.bindingSet.getVariables() )
+		for ( Neo4jVariable neo4jVariable : this.bindingSet.getVariables() )
 		{
-			if ( neoVariable.getName().equals( variable.getName() ) )
+			if ( neo4jVariable.getName().equals( variable.getName() ) )
 			{
-				return neoVariable;
+				return neo4jVariable;
 			}
 		}
 		
-		throw new RuntimeException( "NeoVariable not found." );
+		throw new RuntimeException( "variable not found." );
 	}
 
 	public List<Value> getValues()
 	{
 		List<Value> values = new LinkedList<Value>();
 		
-		for ( NeoVariable variable :
-			( List<NeoVariable> ) this.getVariables() )
+		for ( Neo4jVariable variable :
+			( List<Neo4jVariable> ) this.getVariables() )
 		{
 			for ( PatternElement element : this.match.getElements() )
 			{
 				if ( variable.getNode().getLabel().equals(
 					element.getPatternNode().getLabel() ) )
 				{
-					values.add( new NeoValue(
+					values.add( new Neo4jValue(
 						element.getNode().getProperty(
 							variable.getProperty() ) ) );
 					break;
@@ -94,11 +94,11 @@ public class NeoBindingRow implements RdfBindingRow
 		return this.bindingSet.getVariables();
 	}
 	
-	static class NeoValue implements Value
+	static class Neo4jValue implements Value
 	{
 		Object value;
 		
-		NeoValue( Object value )
+		Neo4jValue( Object value )
 		{
 			this.value = value;
 		}

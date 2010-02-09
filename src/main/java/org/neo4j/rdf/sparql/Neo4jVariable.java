@@ -4,7 +4,7 @@ import name.levering.ryan.sparql.common.Variable;
 
 import org.neo4j.graphmatching.PatternNode;
 
-public class NeoVariable implements Variable
+public class Neo4jVariable implements Variable
 {
 	public static enum VariableType { LITERAL, URI };
 	
@@ -13,7 +13,7 @@ public class NeoVariable implements Variable
 	private PatternNode node;
 	private String property;
 	
-	NeoVariable( String variableName, VariableType variableType,
+	Neo4jVariable( String variableName, VariableType variableType,
 		PatternNode node, String property )
 	{
 		this.variableType = variableType;
@@ -50,6 +50,6 @@ public class NeoVariable implements Variable
 	@Override
 	public String toString()
 	{
-	    return "NeoVariable[" + getName() + "]";
+	    return getClass().getSimpleName() + "[" + getName() + "]";
 	}
 }

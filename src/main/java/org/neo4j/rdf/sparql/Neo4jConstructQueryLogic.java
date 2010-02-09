@@ -19,12 +19,12 @@ import name.levering.ryan.sparql.model.logic.ExpressionLogic;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 import org.openrdf.model.URI;
 
-public class NeoConstructQueryLogic extends AbstractNeoQueryLogic implements
+public class Neo4jConstructQueryLogic extends AbstractNeo4jQueryLogic implements
 	ConstructQueryLogic
 {
 	private ConstructQueryData data;
 	
-	public NeoConstructQueryLogic( ConstructQueryData data,
+	public Neo4jConstructQueryLogic( ConstructQueryData data,
 		RepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel )
 	{
@@ -36,36 +36,36 @@ public class NeoConstructQueryLogic extends AbstractNeoQueryLogic implements
 	{
 		QueryGraph graph = this.buildGraph( this.data.getConstraint() );
 		
-		NeoRdfBindingSet bindingSet = new NeoRdfBindingSet(
-			this.getNeoVariables(), this.performMatches( graph ) );
-		return new NeoRdfGraph( this.data.getTriples(), bindingSet );
+		Neo4jRdfBindingSet bindingSet = new Neo4jRdfBindingSet(
+			this.getNeo4jVariables(), this.performMatches( graph ) );
+		return new Neo4jRdfGraph( this.data.getTriples(), bindingSet );
 	}
 	
 	@Override
-	protected List<NeoVariable> getNeoVariables()
+	protected List<Neo4jVariable> getNeo4jVariables()
 	{
-		List<NeoVariable> neoVariables = new LinkedList<NeoVariable>();
-		for ( NeoVariable neoVariable : super.getNeoVariables() )
+		List<Neo4jVariable> variables = new LinkedList<Neo4jVariable>();
+		for ( Neo4jVariable variable : super.getNeo4jVariables() )
 		{
 			if ( this.variableExists(
-				this.data.getVariables(), neoVariable.getName() ) )
+				this.data.getVariables(), variable.getName() ) )
 			{
-				neoVariables.add( neoVariable );
+				variables.add( variable );
 			}
 		}
 		
-		return neoVariables;
+		return variables;
 	}
 }
 
-class NeoRdfGraph implements RdfGraph, Iterable<LenientStatement>
+class Neo4jRdfGraph implements RdfGraph, Iterable<LenientStatement>
 {
 	private Collection<UnboundStatement> triples;
-	private NeoRdfBindingSet bindingSet;
+	private Neo4jRdfBindingSet bindingSet;
 	RdfGraphIterator iterator;
 	
-	public NeoRdfGraph( Collection<UnboundStatement> triples,
-		NeoRdfBindingSet bindingSet )
+	public Neo4jRdfGraph( Collection<UnboundStatement> triples,
+		Neo4jRdfBindingSet bindingSet )
 	{
 		this.triples = triples;
 		this.bindingSet = bindingSet;
@@ -79,7 +79,7 @@ class NeoRdfGraph implements RdfGraph, Iterable<LenientStatement>
 
 	class RdfGraphIterator implements Iterator<LenientStatement>
 	{
-		private Iterator<NeoBindingRow> bindingRows;
+		private Iterator<Neo4jBindingRow> bindingRows;
 		private Iterator<LenientStatement> currentTriples;
 		
 		public RdfGraphIterator()
@@ -127,7 +127,7 @@ class NeoRdfGraph implements RdfGraph, Iterable<LenientStatement>
 			
 			List<LenientStatement> boundStatements =
 				new ArrayList<LenientStatement>();
-			NeoBindingRow bindingRow = this.bindingRows.next();
+			Neo4jBindingRow bindingRow = this.bindingRows.next();
 			for ( UnboundStatement unboundStatement : triples )
 			{
 				LenientStatement statement = new StatementImpl(

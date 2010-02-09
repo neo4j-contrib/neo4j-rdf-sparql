@@ -7,47 +7,45 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 
-public class NeoRdfSource implements RdfSource
+public class Neo4jRdfSource implements RdfSource
 {
+    private QueryException newOperationNotSupportedException()
+    {
+        return new QueryException( "Operation not supported." );
+    }
+    
 	public Iterator getDefaultStatements( Value subj, URI pred, Value obj )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+	    throw newOperationNotSupportedException();
 	}
 
 	public Iterator getStatements( Value subj, URI pred, Value obj, URI graph )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw newOperationNotSupportedException();
 	}
 
 	public Iterator getStatements( Value subj, URI pred, Value obj )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw newOperationNotSupportedException();
 	}
 
 	public ValueFactory getValueFactory()
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw newOperationNotSupportedException();
 	}
 
 	public boolean hasDefaultStatement( Value subj, URI pred, Value obj )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw newOperationNotSupportedException();
 	}
 
 	public boolean hasStatement( Value subj, URI pred, Value obj )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw newOperationNotSupportedException();
 	}
 
 	public boolean hasStatement( Value subj, URI pred, Value obj, URI graph )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw newOperationNotSupportedException();
 	}
 }

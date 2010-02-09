@@ -11,21 +11,21 @@ import name.levering.ryan.sparql.parser.SPARQLParser;
 
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 
-public class NeoSparqlEngine
+public class Neo4jSparqlEngine
 {
-	private static NeoLogic NEO_LOGIC;
+	private static Neo4jLogic NEO4J_LOGIC;
 	
-	public NeoSparqlEngine( RepresentationStrategy representationStrategy,
+	public Neo4jSparqlEngine( RepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel )
 	{
-//	    if ( NEO_LOGIC != null )
+//	    if ( NEO4J_LOGIC != null )
 //	    {
 //	        throw new IllegalStateException( "There's already a SPARQL engine" +
 //	        	" running, unfortunately we only support one SPARQL engine " +
 //	        	"per JVM at this moment" );
 //	    }
-	    NEO_LOGIC = new NeoLogic( representationStrategy, metaModel );
-		SPARQLQueryLogic.getInstance().setLogicFactory( NEO_LOGIC );
+	    NEO4J_LOGIC = new Neo4jLogic( representationStrategy, metaModel );
+		SPARQLQueryLogic.getInstance().setLogicFactory( NEO4J_LOGIC );
 	}
 	
 	public Query parse( String query ) throws ParseException

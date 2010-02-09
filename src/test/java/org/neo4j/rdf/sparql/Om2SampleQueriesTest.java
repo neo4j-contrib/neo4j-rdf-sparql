@@ -75,7 +75,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	@Override
 	protected RepresentationStrategy instantiateRepresentationStrategy()
 	{
-		RepresentationExecutor executor = new VerboseQuadExecutor( neo(),
+		RepresentationExecutor executor = new VerboseQuadExecutor( graphDb(),
 			indexService(), metaModel(), null );
 		return new VerboseQuadStrategy( executor, metaModel() );
 	}
@@ -87,9 +87,9 @@ public class Om2SampleQueriesTest extends SparqlTestCase
     }
 
     @Override
-    protected NeoSparqlEngine instantiateSparqlEngine()
+    protected Neo4jSparqlEngine instantiateSparqlEngine()
     {
-        return new NeoSparqlEngine( representationStrategy(),
+        return new Neo4jSparqlEngine( representationStrategy(),
             metaModelProxy() );
     }
     
@@ -97,7 +97,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	{
 		if ( metaModel == null )
 		{
-			metaModel = new MetaModelImpl( neo() );
+			metaModel = new MetaModelImpl( graphDb() );
 			MetaModelNamespace namespace =
 				metaModel.getGlobalNamespace();
 			MetaModelClass studentClass = namespace.getMetaClass(
@@ -139,7 +139,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	{
 		super.setUp();
 
-		this.rdfStore = new VerboseQuadStore( neo(), indexService(),
+		this.rdfStore = new VerboseQuadStore( graphDb(), indexService(),
 		    metaModel(), null );
 
 		List<CompleteStatement> statements = new ArrayList<CompleteStatement>();
@@ -288,7 +288,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"<http://28040ht06> rdf:type ladok:CourseInstance . }" ) );
 
 		RdfBindingSet result =
-			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
+			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
 		Map<String, Integer> variables =
 			this.createVariableMap( "student", "person" );
@@ -318,7 +318,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"} " ) );
 
 		RdfBindingSet result =
-			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
+			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
 		Map<String, Integer> variables =
 			this.createVariableMap( "student", "person", "course" );
@@ -343,7 +343,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"?department rdf:type prim:Department . " +
 			"?department prim:name \"Psykologi\" } " ) );
 		RdfBindingSet result =
-			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
+			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
 		Map<String, Integer> variables = this.createVariableMap(
 			"responsible", "course", "department" );
@@ -372,7 +372,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"?department rdf:type prim:Department . " +
 			"?department prim:name ?name }" ) );
 		RdfBindingSet result =
-			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
+			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
 		Map<String, Integer> variables = this.createVariableMap(
 			"responsible", "course", "department", "name" );
@@ -400,7 +400,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"?department rdf:type prim:Department . " +
 		"?department prim:name ?name }" ) );
 		RdfBindingSet result =
-			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
+			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
 		this.assertResult( result, null, null );
 	}
@@ -426,7 +426,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"}" ) );
 
 		RdfBindingSet result =
-			( ( SelectQuery ) query ).execute( new NeoRdfSource() );
+			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
 		Map<String, Integer> variables =
 			this.createVariableMap( "student", "person", "course", "state" );
@@ -466,7 +466,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"}" ) );
 
 		RdfGraph result =
-			( ( ConstructQuery ) query ).execute( new NeoRdfSource() );
+			( ( ConstructQuery ) query ).execute( new Neo4jRdfSource() );
 		List<String> expectedResult = new ArrayList<String>();
 		expectedResult.add(
 	"(studentF, http://www.openmetadir.org/om2/prim-1.owl#one, personF)" );
@@ -493,6 +493,6 @@ public class Om2SampleQueriesTest extends SparqlTestCase
         expectedResult.add(
 	"(personA, http://www.openmetadir.org/om2/prim-1.owl#other, studentA)" );
 
-		this.assertResult( ( NeoRdfGraph ) result, expectedResult );
+		this.assertResult( ( Neo4jRdfGraph ) result, expectedResult );
 	}
 }

@@ -10,12 +10,12 @@ import name.levering.ryan.sparql.model.logic.SelectQueryLogic;
 
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 
-public class NeoSelectQueryLogic extends AbstractNeoQueryLogic
+public class Neo4jSelectQueryLogic extends AbstractNeo4jQueryLogic
 	implements SelectQueryLogic
 {
 	private SelectQueryData data;
 	
-	public NeoSelectQueryLogic( SelectQueryData data,
+	public Neo4jSelectQueryLogic( SelectQueryData data,
 		RepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel )
 	{
@@ -27,23 +27,23 @@ public class NeoSelectQueryLogic extends AbstractNeoQueryLogic
 	{
 		QueryGraph graph = this.buildGraph( this.data.getConstraint() );
 
-		return new NeoRdfBindingSet( this.getNeoVariables(),
+		return new Neo4jRdfBindingSet( this.getNeo4jVariables(),
 			this.performMatches( graph ) );
 	}
 	
 	@Override
-	protected List<NeoVariable> getNeoVariables()
+	protected List<Neo4jVariable> getNeo4jVariables()
 	{
-		List<NeoVariable> neoVariables = new LinkedList<NeoVariable>();
-		for ( NeoVariable neoVariable : super.getNeoVariables() )
+		List<Neo4jVariable> variables = new LinkedList<Neo4jVariable>();
+		for ( Neo4jVariable variable : super.getNeo4jVariables() )
 		{
 			if ( this.variableExists(
-				this.data.getVariables(), neoVariable.getName() ) )
+				this.data.getVariables(), variable.getName() ) )
 			{
-				neoVariables.add( neoVariable );
+				variables.add( variable );
 			}
 		}
 		
-		return neoVariables;
+		return variables;
 	}
 }

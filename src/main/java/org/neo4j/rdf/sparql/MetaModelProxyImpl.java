@@ -10,11 +10,11 @@ import org.neo4j.rdf.store.representation.AbstractNode;
  */
 public class MetaModelProxyImpl implements MetaModelProxy
 {
-    private MetaModel meta;
+    private MetaModel model;
     
-    public MetaModelProxyImpl( MetaModel meta )
+    public MetaModelProxyImpl( MetaModel model )
     {
-        this.meta = meta;
+        this.model = model;
     }
     
 	/**
@@ -50,7 +50,7 @@ public class MetaModelProxyImpl implements MetaModelProxy
 		{
 			String uri = node.getUriOrNull().getUriAsString();
 		    MetaModelClass cls =
-		        meta.getGlobalNamespace().getMetaClass(
+		        model.getGlobalNamespace().getMetaClass(
 		        	node.getUriOrNull().getUriAsString(), false );
 	//	    if ( cls == null )
 	//	    {
@@ -70,7 +70,7 @@ public class MetaModelProxyImpl implements MetaModelProxy
 	 * @param subjectUri not used yet
 	 * @param predicateUri the name of the property.
 	 * @param objectUri not used yet
-	 * @return a property definition in the neo meta model.
+	 * @return a property definition in the meta model.
 	 */
 //	public OwlProperty getOwlProperty( String subjectUri, String predicateUri,
 //		String objectUri )

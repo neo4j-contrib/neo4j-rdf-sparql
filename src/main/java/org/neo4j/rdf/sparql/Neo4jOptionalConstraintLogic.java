@@ -8,12 +8,12 @@ import name.levering.ryan.sparql.model.OptionalConstraint;
 import name.levering.ryan.sparql.model.data.OptionalConstraintData;
 import name.levering.ryan.sparql.model.logic.ConstraintLogic;
 
-public class NeoOptionalConstraintLogic implements ConstraintLogic
+public class Neo4jOptionalConstraintLogic implements ConstraintLogic
 {
 	private OptionalConstraintData data;
 	private SPARQLValueFactory valueFactory;
 
-	NeoOptionalConstraintLogic( OptionalConstraintData data,
+	Neo4jOptionalConstraintLogic( OptionalConstraintData data,
 		SPARQLValueFactory valueFactory )
 	{
 		this.data = data;

@@ -16,20 +16,20 @@ import org.neo4j.graphmatching.PatternMatcher;
 import org.neo4j.graphmatching.PatternNode;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 
-public abstract class AbstractNeoQueryLogic
+public abstract class AbstractNeo4jQueryLogic
 {
-	private List<NeoVariable> variableList = new LinkedList<NeoVariable>();
+	private List<Neo4jVariable> variableList = new LinkedList<Neo4jVariable>();
 	private MetaModelProxy metaModel;
 	private RepresentationStrategy representationStrategy;
 
-	AbstractNeoQueryLogic( RepresentationStrategy representationStrategy,
+	AbstractNeo4jQueryLogic( RepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel )
 	{
 		this.metaModel = metaModel;
 		this.representationStrategy = representationStrategy;
 	}
 	
-	protected List<NeoVariable> getNeoVariables()
+	protected List<Neo4jVariable> getNeo4jVariables()
 	{
 		return this.variableList;
 	}
@@ -37,7 +37,7 @@ public abstract class AbstractNeoQueryLogic
 	private Map<String, PatternNode> getObjectVariables()
 	{
 	    Map<String, PatternNode> map = new HashMap<String, PatternNode>();
-	    for ( NeoVariable variable : this.variableList )
+	    for ( Neo4jVariable variable : this.variableList )
 	    {
 	        map.put( variable.getName(), variable.getNode() );
 	    }

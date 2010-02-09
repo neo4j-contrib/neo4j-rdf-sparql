@@ -31,12 +31,12 @@ import name.levering.ryan.sparql.model.logic.ValueConversionLogic;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 import org.openrdf.model.URI;
 
-public class NeoLogic extends BaseLogic
+public class Neo4jLogic extends BaseLogic
 {
 	private RepresentationStrategy representationStrategy;
 	private MetaModelProxy metaModel;
 	
-	public NeoLogic( RepresentationStrategy representationStrategy,
+	public Neo4jLogic( RepresentationStrategy representationStrategy,
 		MetaModelProxy metaModel )
 	{
 		this.representationStrategy = representationStrategy;
@@ -45,28 +45,25 @@ public class NeoLogic extends BaseLogic
 	
 	public AskQueryLogic getAskQueryLogic( AskQueryData data )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw new QueryException( "Operation not supported." );
 	}
 
 	public ConstructQueryLogic getConstructQueryLogic( ConstructQueryData data,
 		SPARQLValueFactory valueFactory )
 	{
-		return new NeoConstructQueryLogic( data, this.representationStrategy,
+		return new Neo4jConstructQueryLogic( data, this.representationStrategy,
 			this.metaModel );
 	}
 
 	public DescribeQueryLogic getDescribeQueryLogic( DescribeQueryData data )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw new QueryException( "Operation not supported." );
 	}
 
 	public ExpressionLogic getExternalFunctionLogic( CallExpressionData data,
 		SPARQLValueFactory valueFactory )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw new QueryException( "Operation not supported." );
 	}
 
 	public ConstraintLogic getFilterConstraintLogic( FilterConstraintData data,
@@ -81,50 +78,46 @@ public class NeoLogic extends BaseLogic
 
 	public ConstraintLogic getGraphConstraintLogic( GraphConstraintData data )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw new QueryException( "Operation not supported." );
 	}
 
 	public ConstraintLogic getGroupConstraintLogic( GroupConstraintData data )
 	{
-		return new NeoConstraintLogic();
+		return new Neo4jConstraintLogic();
 	}
 
 	public ConstraintLogic getOptionalConstraintLogic(
 		OptionalConstraintData data, SPARQLValueFactory valueFactory )
 	{
-		return new NeoOptionalConstraintLogic( data, valueFactory );
+		return new Neo4jOptionalConstraintLogic( data, valueFactory );
 	}
 
 	public OrderExpressionLogic getOrderExpressionLogic(
 		OrderExpressionData data )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw new QueryException( "Operation not supported." );
 	}
 
 	public SelectQueryLogic getSelectQueryLogic( SelectQueryData data )
 	{
-		return new NeoSelectQueryLogic( data, this.representationStrategy,
+		return new Neo4jSelectQueryLogic( data, this.representationStrategy,
 			this.metaModel );
 	}
 
 	public ConstraintLogic getTripleConstraintLogic(
 		TripleConstraintData data )
 	{
-		return new NeoConstraintLogic();
+		return new Neo4jConstraintLogic();
 	}
 
 	public ConstraintLogic getUnionConstraintLogic( UnionConstraintData data )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw new QueryException( "Operation not supported." );
 	}
 
 	public void registerExternalFunction( URI functionIRI,
 		ExternalFunctionFactory functionFactory )
 	{
-		throw new QueryException(
-			"Operation not supported with NeoRdfSource." );
+        throw new QueryException( "Operation not supported." );
 	}
 }

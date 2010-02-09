@@ -18,7 +18,7 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.rdf.store.representation.AbstractNode;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 
-public abstract class SparqlTestCase extends NeoWithIndexTestCase
+public abstract class SparqlTestCase extends Neo4jWithIndexTestCase
 {
 	final static String RDF_NAMESPACE =
 		"http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -30,7 +30,7 @@ public abstract class SparqlTestCase extends NeoWithIndexTestCase
 		"http://xmlns.com/foaf/1.0/";
 	
 	private RepresentationStrategy representationStrategy;
-	protected NeoSparqlEngine sparqlEngine;
+	protected Neo4jSparqlEngine sparqlEngine;
 	protected MetaModelMockUp metaModel;
 	private Set<Node> createdNodes = new HashSet<Node>();
 	
@@ -52,7 +52,7 @@ public abstract class SparqlTestCase extends NeoWithIndexTestCase
 	
 	protected abstract MetaModelMockUp instantiateMetaModelProxy();
 	
-	protected NeoSparqlEngine sparqlEngine()
+	protected Neo4jSparqlEngine sparqlEngine()
 	{
 	    if ( this.sparqlEngine == null )
 	    {
@@ -61,7 +61,7 @@ public abstract class SparqlTestCase extends NeoWithIndexTestCase
 	    return this.sparqlEngine;
 	}
 	
-	protected abstract NeoSparqlEngine instantiateSparqlEngine();
+	protected abstract Neo4jSparqlEngine instantiateSparqlEngine();
 	
 	protected RepresentationStrategy representationStrategy()
 	{
@@ -82,7 +82,7 @@ public abstract class SparqlTestCase extends NeoWithIndexTestCase
 	
 	protected Node createNode( String name, Node referenceNode )
 	{
-		Node node = neo().createNode();
+		Node node = graphDb().createNode();
 		node.setProperty( representationStrategy().getExecutor().
 		    getNodeUriPropertyKey( new AbstractNode( null ) ), name );
 		if ( referenceNode != null )
@@ -108,7 +108,7 @@ public abstract class SparqlTestCase extends NeoWithIndexTestCase
 		return referenceNode;
 	}
 	
-	protected void assertResult( NeoRdfGraph result,
+	protected void assertResult( Neo4jRdfGraph result,
 	    List<String> expectedResult )
 	{
 		Iterator<LenientStatement> statements = result.iterator();
@@ -218,20 +218,20 @@ public abstract class SparqlTestCase extends NeoWithIndexTestCase
 		}
 	}
 	
-	protected void printNeoBindingSet( RdfBindingSet bindingSet )
+	protected void printBindingSet( RdfBindingSet bindingSet )
 	{
-		NeoRdfBindingSet neoBindingSet = ( NeoRdfBindingSet ) bindingSet;
+		Neo4jRdfBindingSet neo4jBindingSet = ( Neo4jRdfBindingSet ) bindingSet;
 		
-		Iterator<NeoBindingRow> matches = neoBindingSet.iterator();
+		Iterator<Neo4jBindingRow> matches = neo4jBindingSet.iterator();
 		System.out.println( "printing matches");
 		while ( matches.hasNext() )
 		{
-			NeoBindingRow match = matches.next();
+			Neo4jBindingRow match = matches.next();
 			this.printMatch( match );
 		}
 	}
 	
-	protected void printRdfGraph( NeoRdfGraph graph )
+	protected void printRdfGraph( Neo4jRdfGraph graph )
 	{
 		System.out.println( "Graph: " );
 		for ( LenientStatement statement : graph )
@@ -242,7 +242,7 @@ public abstract class SparqlTestCase extends NeoWithIndexTestCase
 		System.out.println( "end of graph" );
 	}
 
-	protected void printMatch( NeoBindingRow match )
+	protected void printMatch( Neo4jBindingRow match )
 	{
 		System.out.println( "Match:" );
 		for ( Variable variable : match.getVariables() )

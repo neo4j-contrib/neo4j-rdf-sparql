@@ -1,9 +1,9 @@
 package org.neo4j.rdf.sparql;
 
 import org.neo4j.index.IndexService;
-import org.neo4j.index.impl.NeoIndexService;
+import org.neo4j.index.lucene.LuceneIndexService;
 
-public abstract class NeoWithIndexTestCase extends NeoTestCase
+public abstract class Neo4jWithIndexTestCase extends Neo4jTestCase
 {
     private IndexService indexService;
     
@@ -23,7 +23,7 @@ public abstract class NeoWithIndexTestCase extends NeoTestCase
      */
     protected IndexService instantiateIndexService()
     {
-        return new NeoIndexService( neo() );
+        return new LuceneIndexService( graphDb() );
     }
 
     private void setIndexService( IndexService indexService )
@@ -43,14 +43,13 @@ public abstract class NeoWithIndexTestCase extends NeoTestCase
         createIndexServiceIfNeeded();
     }
     
-    @Override
-    protected void tearDown() throws Exception
+    @Override protected void doShutdown()
     {
         if ( indexService() != null )
         {
             indexService().shutdown();
             setIndexService( null );
         }
-        super.tearDown();
+        super.doShutdown();
     }
 }

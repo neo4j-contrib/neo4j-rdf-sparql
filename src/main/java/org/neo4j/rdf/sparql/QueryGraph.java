@@ -45,7 +45,7 @@ import org.neo4j.rdf.model.Uri;
 import org.neo4j.rdf.model.Value;
 import org.neo4j.rdf.model.Wildcard;
 import org.neo4j.rdf.model.WildcardStatement;
-import org.neo4j.rdf.sparql.NeoVariable.VariableType;
+import org.neo4j.rdf.sparql.Neo4jVariable.VariableType;
 import org.neo4j.rdf.store.representation.AbstractNode;
 import org.neo4j.rdf.store.representation.AbstractRelationship;
 import org.neo4j.rdf.store.representation.AbstractRepresentation;
@@ -65,7 +65,7 @@ import org.openrdf.model.datatypes.XMLDatatypeUtil;
 public class QueryGraph
 {
     private AtomicInteger blankLabelCounter = new AtomicInteger();
-	private List<NeoVariable> variableList;
+	private List<Neo4jVariable> variableList;
 	private Map<String, ASTVar> astVariables = new HashMap<String, ASTVar>();
 	private Map<AbstractNode, PatternNode> graph =
 		new HashMap<AbstractNode, PatternNode>();
@@ -77,7 +77,7 @@ public class QueryGraph
     private Set<AbstractNode> possibleStartNodes = new HashSet<AbstractNode>();
     
     QueryGraph( RepresentationStrategy representationStrategy,
-        MetaModelProxy metaModel, List<NeoVariable> variableList,
+        MetaModelProxy metaModel, List<Neo4jVariable> variableList,
         AtomicInteger blankLabelCounter )
     {
         this( representationStrategy, metaModel, variableList );
@@ -85,7 +85,7 @@ public class QueryGraph
     }
 
 	QueryGraph( RepresentationStrategy representationStrategy,
-		MetaModelProxy metaModel, List<NeoVariable> variableList )
+		MetaModelProxy metaModel, List<Neo4jVariable> variableList )
 	{
 		this.variableList = variableList;
 		this.metaModelProxy = metaModel;
@@ -189,8 +189,7 @@ public class QueryGraph
 			}
 			else
 			{
-				throw new QueryException(
-					"Operation not supported with NeoRdfSource." );
+				throw new QueryException( "Operation not supported." );
 			}
 		}
 		
@@ -279,7 +278,7 @@ public class QueryGraph
             realValue = value.getLabel();
         }
 
-        NeoVariable variable = getVariable( var );
+        Neo4jVariable variable = getVariable( var );
         return new CompareExpression( var.getName(), variable.getProperty(),
             operator, realValue );
     }
@@ -292,15 +291,15 @@ public class QueryGraph
         ASTLiteral regexValue = ( ASTLiteral ) arguments.get( 1 );
         ASTLiteral regexOptions = arguments.size() > 2 ?
             ( ASTLiteral ) arguments.get( 2 ) : null;
-        NeoVariable neoVariable = getVariable( variable );
+        Neo4jVariable neo4jVariable = getVariable( variable );
         return new RegexPattern( variable.getName(),
-            neoVariable.getProperty(), regexValue.getLabel(),
+            neo4jVariable.getProperty(), regexValue.getLabel(),
             regexOptions == null ? "" : regexOptions.getLabel() );
     }
 
-    private NeoVariable getVariableOrNull( ASTVar var )
+    private Neo4jVariable getVariableOrNull( ASTVar var )
     {
-        for ( NeoVariable variable : this.variableList )
+        for ( Neo4jVariable variable : this.variableList )
         {
             if ( var.getName().equals( variable.getName() ) )
             {
@@ -310,9 +309,9 @@ public class QueryGraph
         return null;
     }
     
-    private NeoVariable getVariable( ASTVar var )
+    private Neo4jVariable getVariable( ASTVar var )
     {
-        NeoVariable variable = getVariableOrNull( var );
+        Neo4jVariable variable = getVariableOrNull( var );
         if ( variable == null )
         {
             throw new RuntimeException( "Undefined variable for " + var );
@@ -378,7 +377,7 @@ public class QueryGraph
 	{
 	    public Map<AbstractNode, PatternNode> buildPatternGraph(
 	        AbstractRepresentation representation, PatternGroup group,
-	        List<NeoVariable> variableMapping )
+	        List<Neo4jVariable> variableMapping )
 	    {
 	        return buildPatternGraph( representation, group,
 	            variableMapping, false );
@@ -386,7 +385,7 @@ public class QueryGraph
 	    
 	    public Map<AbstractNode, PatternNode> buildPatternGraph(
 	        AbstractRepresentation representation, PatternGroup group,
-	        List<NeoVariable> variableMapping, boolean optional )
+	        List<Neo4jVariable> variableMapping, boolean optional )
 	    {
 	        for ( AbstractNode node : representation.nodes() )
 	        {
@@ -472,7 +471,7 @@ public class QueryGraph
 	    private void addVariable( String variableName, VariableType type,
 	        PatternNode patternNode, String property )
 	    {
-	        for ( NeoVariable variable : variableList )
+	        for ( Neo4jVariable variable : variableList )
 	        {
 	            if ( variableName.equals( variable.getName() ) )
 	            {
@@ -480,7 +479,7 @@ public class QueryGraph
 	            }
 	        }
 	        variableList.add(
-	            new NeoVariable( variableName, type, patternNode, property ) );
+	            new Neo4jVariable( variableName, type, patternNode, property ) );
 	    }
 	}
 }
