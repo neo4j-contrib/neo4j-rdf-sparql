@@ -13,7 +13,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.neo4j</groupId>
-  <artifactId>neo4j-${short-name}</artifactId>
+  <artifactId>neo4j-rdf-sparql</artifactId>
   <version>0.6-SNAPSHOT</version>
   <name>Sparql-engine for Neo4j</name>
   <description>A sparql-engine adapter for Neo4j</description>
