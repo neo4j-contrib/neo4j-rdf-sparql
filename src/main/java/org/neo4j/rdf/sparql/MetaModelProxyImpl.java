@@ -6,7 +6,7 @@ import org.neo4j.rdf.store.representation.AbstractNode;
 
 /**
  * An implementation of the {@link MetaModelProxy} interface which is used in
- * the SPARQL engine for neo.
+ * the SPARQL engine for Neo4j.
  */
 public class MetaModelProxyImpl implements MetaModelProxy
 {
