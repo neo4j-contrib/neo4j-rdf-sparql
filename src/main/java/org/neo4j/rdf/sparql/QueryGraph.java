@@ -412,9 +412,16 @@ public class QueryGraph
 	                    return name;
 	                }
 	            };
-	            
-	            graph.get( startNode ).createRelationshipTo(
-	                graph.get( endNode ), relType, optional );
+	            if ( !optional )
+	            {
+	                graph.get( startNode ).createRelationshipTo(
+    	                graph.get( endNode ), relType );
+	            }
+	            else
+	            {
+                    graph.get( startNode ).createOptionalRelationshipTo(
+                            graph.get( endNode ), relType );
+	            }
 	        }
 	        
 	        return graph;
