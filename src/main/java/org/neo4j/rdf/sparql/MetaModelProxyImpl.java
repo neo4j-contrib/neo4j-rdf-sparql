@@ -60,7 +60,8 @@ public class MetaModelProxyImpl implements MetaModelProxy
 		    {
 		        throw new RuntimeException( "Not found '" + uri + "'" );
 		    }
-		    count = cls.getInstances().size();
+		    // TODO Direct instances or all?
+		    count = cls.getDirectInstances().size();
 		}
 	    
 	    return count;
