@@ -1,5 +1,7 @@
 package org.neo4j.rdf.sparql;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,7 +20,7 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.rdf.store.representation.AbstractNode;
 import org.neo4j.rdf.store.representation.RepresentationStrategy;
 
-public abstract class SparqlTestCase extends Neo4jWithIndexTestCase
+public abstract class SparqlTestCase extends Neo4jTestCase
 {
 	final static String RDF_NAMESPACE =
 		"http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -33,13 +35,6 @@ public abstract class SparqlTestCase extends Neo4jWithIndexTestCase
 	protected Neo4jSparqlEngine sparqlEngine;
 	protected MetaModelMockUp metaModel;
 	private Set<Node> createdNodes = new HashSet<Node>();
-	
-	@Override
-	public void tearDown() throws Exception
-	{
-		this.deleteAllNodes();
-		super.tearDown();
-	}
 	
 	protected MetaModelMockUp metaModelProxy()
 	{

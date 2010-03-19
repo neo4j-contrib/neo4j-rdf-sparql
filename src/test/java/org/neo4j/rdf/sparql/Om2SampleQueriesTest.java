@@ -13,6 +13,9 @@ import name.levering.ryan.sparql.model.ConstructQuery;
 import name.levering.ryan.sparql.model.Query;
 import name.levering.ryan.sparql.model.SelectQuery;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.meta.model.ClassRange;
 import org.neo4j.meta.model.DatatypeClassRange;
 import org.neo4j.meta.model.MetaModel;
@@ -59,9 +62,8 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			"http://www.openmetadir.org/om2/prim-1.owl#Responsible" );
 	}
 
-	private static Map<String, Integer> counts =
-		new HashMap<String, Integer>();
-	private RdfStore rdfStore;
+	private static Map<String, Integer> counts = new HashMap<String, Integer>();
+	private static RdfStore rdfStore;
 	private static MetaModel metaModel;
 	static
 	{
@@ -73,27 +75,27 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	}
 
 	@Override
-	protected RepresentationStrategy instantiateRepresentationStrategy()
+	public RepresentationStrategy instantiateRepresentationStrategy()
 	{
 		RepresentationExecutor executor = new VerboseQuadExecutor( graphDb(),
-			indexService(), metaModel(), null );
+			index(), metaModel(), null );
 		return new VerboseQuadStrategy( executor, metaModel() );
 	}
 
     @Override
-    protected MetaModelMockUp instantiateMetaModelProxy()
+    public MetaModelMockUp instantiateMetaModelProxy()
     {
         return new MetaModelMockUp( metaModel(), counts );
     }
 
     @Override
-    protected Neo4jSparqlEngine instantiateSparqlEngine()
+    public Neo4jSparqlEngine instantiateSparqlEngine()
     {
         return new Neo4jSparqlEngine( representationStrategy(),
             metaModelProxy() );
     }
     
-	private MetaModel metaModel()
+	private static MetaModel metaModel()
 	{
 		if ( metaModel == null )
 		{
@@ -134,123 +136,129 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		return metaModel;
 	}
 
-	@Override
-	public void setUp() throws Exception
+	@BeforeClass
+	public static void setUpGraph() throws Exception
 	{
-		super.setUp();
-
-		this.rdfStore = new VerboseQuadStore( graphDb(), indexService(),
-		    metaModel(), null );
-
+		rdfStore = new VerboseQuadStore( graphDb(), index(), metaModel(), null );
 		List<CompleteStatement> statements = new ArrayList<CompleteStatement>();
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentA", Predicates.TYPE, Types.STUDENT ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentB", Predicates.TYPE, Types.STUDENT ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentC", Predicates.TYPE, Types.STUDENT ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentD", Predicates.TYPE, Types.STUDENT ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentE", Predicates.TYPE, Types.STUDENT ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentF", Predicates.TYPE, Types.STUDENT ) );
 
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"personA", Predicates.TYPE, Types.PERSON ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"personB", Predicates.TYPE, Types.PERSON ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"personC", Predicates.TYPE, Types.PERSON ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"personD", Predicates.TYPE, Types.PERSON ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"personE", Predicates.TYPE, Types.PERSON ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"personF", Predicates.TYPE, Types.PERSON ) );
 
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"http://28040ht06", Predicates.TYPE, Types.COURSE ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"courseB", Predicates.TYPE, Types.COURSE ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"courseB", Predicates.COURSE_ID, "KOSB15" ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"courseC", Predicates.TYPE, Types.COURSE ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"courseD", Predicates.TYPE, Types.COURSE ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"courseD", Predicates.COURSE_ID, "TMHB21" ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"courseE", Predicates.TYPE, Types.COURSE ) );
 
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"departmentA", Predicates.TYPE, Types.DEPARTMENT ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"departmentA", Predicates.NAME, "Psykologi" ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"departmentB", Predicates.TYPE, Types.DEPARTMENT ) );
 
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"responsibleA", Predicates.TYPE, Types.RESPONSIBLE ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"responsibleB", Predicates.TYPE, Types.RESPONSIBLE ) );
 
-		statements.add( this.createStatement( "responsibleA",
+		statements.add( createStatement( "responsibleA",
 			Predicates.ONE, new Uri( "departmentA" ) ) );
-		statements.add( this.createStatement( "responsibleB",
+		statements.add( createStatement( "responsibleB",
 			Predicates.ONE, new Uri( "departmentB" ) ) );
-		statements.add( this.createStatement( "responsibleA",
+		statements.add( createStatement( "responsibleA",
 			Predicates.OTHER, new Uri( "http://28040ht06" ) ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"responsibleA", Predicates.OTHER, new Uri( "courseD" ) ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"responsibleB", Predicates.OTHER, new Uri( "courseB" ) ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"responsibleB", Predicates.OTHER, new Uri( "courseC" ) ) );
 
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentA", Predicates.ONE, new Uri( "personA" ) ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentB", Predicates.ONE, new Uri( "personB" ) ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentC", Predicates.ONE, new Uri( "personC" ) ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentD", Predicates.ONE, new Uri( "personD" ) ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentE", Predicates.ONE, new Uri( "personE" ) ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentF", Predicates.ONE, new Uri( "personF" ) ) );
 
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentA", Predicates.STATE, "registered" ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentC", Predicates.STATE, "registered" ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentD", Predicates.STATE, "registered" ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentE", Predicates.STATE, "accepted" ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentF", Predicates.STATE, "accepted" ) );
 
-		statements.add( this.createStatement( "studentA", Predicates.OTHER,
+		statements.add( createStatement( "studentA", Predicates.OTHER,
 			new Uri( "http://28040ht06" ) ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentA", Predicates.OTHER, new Uri( "courseE" ) ) );
-		statements.add( this.createStatement( "studentC", Predicates.OTHER,
+		statements.add( createStatement( "studentC", Predicates.OTHER,
 			new Uri( "http://28040ht06" ) ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentD", Predicates.OTHER, new Uri( "courseB" ) ) );
-		statements.add( this.createStatement( "studentE", Predicates.OTHER,
+		statements.add( createStatement( "studentE", Predicates.OTHER,
 			new Uri( "http://28040ht06" ) ) );
-		statements.add( this.createStatement(
+		statements.add( createStatement(
 			"studentF", Predicates.OTHER, new Uri( "courseB" ) ) );
 
-		this.rdfStore.addStatements( statements.toArray(
-		    new CompleteStatement[] {} ) );
+		Transaction tx = graphDb().beginTx();
+		try
+		{
+		    rdfStore.addStatements( statements.toArray(
+		            new CompleteStatement[] {} ) );
+		    tx.success();
+		    
+		}
+		finally
+		{
+		    tx.finish();
+		}
 	}
 
-	private CompleteStatement createStatement(
+	private static CompleteStatement createStatement(
 		String subjectString, String predicateString, String objectString )
 	{
 		Resource subject = new Uri( subjectString );
@@ -261,7 +269,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			Context.NULL );
 	}
 
-	private CompleteStatement createStatement(
+	private static CompleteStatement createStatement(
 		String subjectString, String predicateString, Uri objectUri )
 	{
 		Resource subject = new Uri( subjectString );
@@ -271,6 +279,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			Context.NULL );
 	}
 
+	@Test
 	public void testQuery1() throws Exception
 	{
 		// Which students are registered on the course 28040ht06?
@@ -291,14 +300,15 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
 		Map<String, Integer> variables =
-			this.createVariableMap( "student", "person" );
+			createVariableMap( "student", "person" );
 		List<List<String>> expectedResult = new ArrayList<List<String>>();
 		expectedResult.add( Arrays.asList( "studentC", "personC" ) );
 		expectedResult.add( Arrays.asList( "studentA", "personA" ) );
-		this.assertResult( result, variables, expectedResult );
+		assertResult( result, variables, expectedResult );
 	}
 
-	public void testQuery2() throws Exception
+	@Test
+    public void testQuery2() throws Exception
 	{
 		// Which students are accepted to the course KOSB15?
 		Query query = sparqlEngine().parse( new StringReader(
@@ -321,13 +331,14 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
 		Map<String, Integer> variables =
-			this.createVariableMap( "student", "person", "course" );
+			createVariableMap( "student", "person", "course" );
 		List<List<String>> expectedResult = new ArrayList<List<String>>();
 		expectedResult.add( Arrays.asList( "studentF", "personF", "courseB" ) );
-		this.assertResult( result, variables, expectedResult );
+		assertResult( result, variables, expectedResult );
 	}
 
-	public void testQuery3() throws Exception
+	@Test
+    public void testQuery3() throws Exception
 	{
 		// Which courses are the Psychology department responsible for?
 		Query query = sparqlEngine().parse( new StringReader(
@@ -345,17 +356,18 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		RdfBindingSet result =
 			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
-		Map<String, Integer> variables = this.createVariableMap(
+		Map<String, Integer> variables = createVariableMap(
 			"responsible", "course", "department" );
 		List<List<String>> expectedResult = new ArrayList<List<String>>();
 		expectedResult.add( Arrays.asList(
 		    "responsibleA", "courseD", "departmentA" ) );
 		expectedResult.add( Arrays.asList(
 			"responsibleA", "http://28040ht06", "departmentA" ) );
-		this.assertResult( result, variables, expectedResult );
+		assertResult( result, variables, expectedResult );
 	}
 
-	public void testQuery4() throws Exception
+	@Test
+    public void testQuery4() throws Exception
 	{
 		// Which department is responsible for the course TMHB21?
 		Query query = sparqlEngine().parse( new StringReader(
@@ -374,15 +386,16 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		RdfBindingSet result =
 			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
-		Map<String, Integer> variables = this.createVariableMap(
+		Map<String, Integer> variables = createVariableMap(
 			"responsible", "course", "department", "name" );
 		List<List<String>> expectedResult = new ArrayList<List<String>>();
 		expectedResult.add( Arrays.asList(
 		    "responsibleA", "courseD", "departmentA", "Psykologi" ) );
-		this.assertResult( result, variables, expectedResult );
+		assertResult( result, variables, expectedResult );
 	}
 
-	public void testQuery5() throws Exception
+	@Test
+    public void testQuery5() throws Exception
 	{
 		// Which department is responsible for the non-existing course
 		// TDDB56?
@@ -402,10 +415,11 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		RdfBindingSet result =
 			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
-		this.assertResult( result, null, null );
+		assertResult( result, null, null );
 	}
 
-	public void testQuery6() throws Exception
+	@Test
+    public void testQuery6() throws Exception
 	{
 		// Get all students
 		// Optional: The person the student is connected to
@@ -429,7 +443,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			( ( SelectQuery ) query ).execute( new Neo4jRdfSource() );
 
 		Map<String, Integer> variables =
-			this.createVariableMap( "student", "person", "course", "state" );
+			createVariableMap( "student", "person", "course", "state" );
 		List<List<String>> expectedResult = new ArrayList<List<String>>();
 		expectedResult.add( Arrays.asList(
 		    "studentF", "personF", "courseB", "accepted" ) );
@@ -446,10 +460,11 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	    expectedResult.add( Arrays.asList(
 			"studentA", "personA", "http://28040ht06", "registered" ) );
 
-		this.assertResult( result, variables, expectedResult );
+		assertResult( result, variables, expectedResult );
 	}
 
-	public void testQuery7() throws Exception
+	@Test
+    public void testQuery7() throws Exception
 	{
 		// Construct a new rdf graph from all students/persons
 		// ( The new graph doesn't make sense, but hey... ;) )
@@ -493,6 +508,6 @@ public class Om2SampleQueriesTest extends SparqlTestCase
         expectedResult.add(
 	"(personA, http://www.openmetadir.org/om2/prim-1.owl#other, studentA)" );
 
-		this.assertResult( ( Neo4jRdfGraph ) result, expectedResult );
+		assertResult( ( Neo4jRdfGraph ) result, expectedResult );
 	}
 }

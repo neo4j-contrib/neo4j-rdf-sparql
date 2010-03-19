@@ -1,65 +1,73 @@
 package org.neo4j.rdf.sparql;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.index.IndexService;
+import org.neo4j.index.lucene.LuceneIndexService;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.neo4j.util.EntireGraphDeletor;
 import org.neo4j.util.GraphDatabaseUtil;
 
-/**
- * Base class for the meta model tests.
- */
-public abstract class Neo4jTestCase extends TestCase
+public abstract class Neo4jTestCase
 {
     private static File basePath = new File( "target/var" );
     private static GraphDatabaseService graphDb;
     private static GraphDatabaseUtil graphDbUtil;
+    private static IndexService index;
 
     private Transaction tx;
 
-    @Override
-    protected void setUp() throws Exception
+    @BeforeClass
+    public static void setUpDb() throws Exception
     {
-        super.setUp();
-        if ( graphDb == null )
-        {
-            File path = new File( basePath, "db" );
-            deleteFileOrDirectory( path );
-            graphDb = new EmbeddedGraphDatabase( path.getAbsolutePath() );
-            Runtime.getRuntime().addShutdownHook( new Thread()
-            {
-                @Override
-                public void run()
-                {
-                    doShutdown();
-                }
-            } );
-            graphDbUtil = new GraphDatabaseUtil( graphDb );
-        }
+        File path = new File( basePath, "db" );
+        deleteFileOrDirectory( path );
+        graphDb = new EmbeddedGraphDatabase( path.getAbsolutePath() );
+        graphDbUtil = new GraphDatabaseUtil( graphDb );
+        index = new LuceneIndexService( graphDb );
+    }
+    
+    @Before
+    public void setUpTest()
+    {
         tx = graphDb().beginTx();
     }
     
-    protected void doShutdown()
+    @After
+    public void tearDownTest()
     {
+        tx.success();
+        tx.finish();
+    }
+    
+    @AfterClass
+    public static void tearDownDb()
+    {
+        index.shutdown();
         graphDb.shutdown();
     }
-
+    
     protected File getBasePath()
     {
         return basePath;
     }
     
-    protected void deleteFileOrDirectory( File file )
+    public static void deleteFileOrDirectory( File file )
     {
         if ( !file.exists() )
         {
@@ -86,24 +94,21 @@ public abstract class Neo4jTestCase extends TestCase
         tx = graphDb.beginTx();
     }
 
-    @Override
-    protected void tearDown() throws Exception
-    {
-        tx.success();
-        tx.finish();
-        super.tearDown();
-    }
-
-    protected GraphDatabaseService graphDb()
+    protected static GraphDatabaseService graphDb()
     {
         return graphDb;
     }
     
-    protected GraphDatabaseUtil graphDbUtil()
+    protected static GraphDatabaseUtil graphDbUtil()
     {
         return graphDbUtil;
     }
 
+    protected static IndexService index()
+    {
+        return index;
+    }
+    
     protected void deleteEntireNodeSpace()
     {
         for ( Relationship rel : graphDb().getReferenceNode().getRelationships() )
@@ -134,7 +139,7 @@ public abstract class Neo4jTestCase extends TestCase
         return list;
     }
 
-    protected <T> String join( String delimiter, T... items )
+    protected static <T> String join( String delimiter, T... items )
     {
         StringBuffer buffer = new StringBuffer();
         for ( T item : items )
@@ -148,7 +153,7 @@ public abstract class Neo4jTestCase extends TestCase
         return buffer.toString();
     }
 
-    protected <T> int countIterable( Iterable<T> iterable )
+    protected static <T> int countIterable( Iterable<T> iterable )
     {
         int counter = 0;
         Iterator<T> itr = iterable.iterator();
