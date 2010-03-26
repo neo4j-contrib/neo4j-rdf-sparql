@@ -31,6 +31,7 @@ import name.levering.ryan.sparql.parser.model.BinaryExpressionNode;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphmatching.CommonValueMatchers;
 import org.neo4j.graphmatching.PatternGroup;
 import org.neo4j.graphmatching.PatternMatcher;
 import org.neo4j.graphmatching.PatternNode;
@@ -448,9 +449,10 @@ public class QueryGraph
 	                uri.getUriAsString() );
 	            if ( uri != null )
 	            {
-	                patternNode.addPropertyEqualConstraint(
+	                patternNode.addPropertyConstraint(
 	                    representationStrategy.getExecutor().
-	                    getNodeUriPropertyKey( node ), uri.getUriAsString() );
+	                    getNodeUriPropertyKey( node ), CommonValueMatchers.exact(
+	                            uri.getUriAsString() ) );
 	            }
 	        }
 	        
@@ -467,8 +469,8 @@ public class QueryGraph
 	                }
 	                else
 	                {
-	                    patternNode.addPropertyEqualConstraint(
-	                        entry.getKey(), value );
+	                    patternNode.addPropertyConstraint(
+	                        entry.getKey(), CommonValueMatchers.exactAny( value ) );
 	                }
 	            }
 	        }
