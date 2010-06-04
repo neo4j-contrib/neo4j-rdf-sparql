@@ -23,6 +23,7 @@ import org.neo4j.meta.model.MetaModelClass;
 import org.neo4j.meta.model.MetaModelImpl;
 import org.neo4j.meta.model.MetaModelNamespace;
 import org.neo4j.meta.model.MetaModelProperty;
+import org.neo4j.meta.model.MetaModelRelationship;
 import org.neo4j.rdf.model.CompleteStatement;
 import org.neo4j.rdf.model.Context;
 import org.neo4j.rdf.model.Literal;
@@ -99,7 +100,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	{
 		if ( metaModel == null )
 		{
-			metaModel = new MetaModelImpl( graphDb() );
+			metaModel = new MetaModelImpl( graphDb(), index() );
 			MetaModelNamespace namespace =
 				metaModel.getGlobalNamespace();
 			MetaModelClass studentClass = namespace.getMetaClass(
@@ -122,10 +123,10 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 			MetaModelProperty nick = namespace.getMetaProperty(
 			    Predicates.NICK, true );
 			nick.setRange( new DatatypeClassRange( String.class ) );
-			MetaModelProperty one = namespace.getMetaProperty(
+			MetaModelRelationship one = namespace.getMetaRelationship(
 				Predicates.ONE, true );
 			one.setRange( new ClassRange( personClass ) );
-			MetaModelProperty other = namespace.getMetaProperty(
+			MetaModelRelationship other = namespace.getMetaRelationship(
 				Predicates.OTHER, true );
 			other.setRange( new ClassRange( courseClass ) );
 			MetaModelProperty state = namespace.getMetaProperty(
@@ -139,7 +140,17 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 	@BeforeClass
 	public static void setUpGraph() throws Exception
 	{
-		rdfStore = new VerboseQuadStore( graphDb(), index(), metaModel(), null );
+	    Transaction tx = graphDb().beginTx();
+	    try
+	    {
+	        rdfStore = new VerboseQuadStore( graphDb(), index(), metaModel(), null );
+	        tx.success();
+	    }
+	    finally
+	    {
+	        tx.finish();
+	    }
+	    
 		List<CompleteStatement> statements = new ArrayList<CompleteStatement>();
 		statements.add( createStatement(
 			"studentA", Predicates.TYPE, Types.STUDENT ) );
@@ -244,7 +255,7 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 		statements.add( createStatement(
 			"studentF", Predicates.OTHER, new Uri( "courseB" ) ) );
 
-		Transaction tx = graphDb().beginTx();
+		tx = graphDb().beginTx();
 		try
 		{
 		    rdfStore.addStatements( statements.toArray(
@@ -510,4 +521,22 @@ public class Om2SampleQueriesTest extends SparqlTestCase
 
 		assertResult( ( Neo4jRdfGraph ) result, expectedResult );
 	}
+	
+//	@Test
+//	public void blabla() throws Exception
+//	{
+//	        String queryString =
+//	        "PREFIX foaf: <http://xmlns.com/foaf/0.1/>" +
+//	        "PREFIX data: <http://example.org/foaf/>" +
+//
+//	        "SELECT ?nick" +
+//	        "WHERE" +
+//	        "  {" +
+//	        "     GRAPH data:bobFoaf {" +
+//	        "         ?x foaf:mbox <mailto:bob@work.example> ." +
+//	        "         ?x foaf:nick ?nick }" +
+//	        "  }";
+//	        
+//	        Query query = sparqlEngine().parse( new StringReader( queryString ) );
+//	}
 }
