@@ -15,9 +15,9 @@
   <groupId>org.neo4j</groupId>
   <artifactId>neo4j-rdf-sparql</artifactId>
   <version>0.6-SNAPSHOT</version>
-  <name>Sparql-engine for Neo4j</name>
+  <name>Neo4j - Sparql-engine</name>
   <description>A sparql-engine adapter for Neo4j</description>
-  <url>http://components.neo4j.org/${project.artifactId}/</url>
+  <url>http://components.neo4j.org/${project.artifactId}/${project.version}</url>
 
   <scm>
     <connection>scm:svn:https://svn.neo4j.org/components/${short-name}/trunk/</connection>
@@ -92,4 +92,12 @@
     </dependency>
   </dependencies>
 
+  <distributionManagement>
+    <site>
+      <id>neo4j-site</id>
+      <url>scpexe://components.neo4j.org/home/neo/components/${project.artifactId}/${project.version}</url>
+    </site>
+  </distributionManagement>
+
 </project>
+
